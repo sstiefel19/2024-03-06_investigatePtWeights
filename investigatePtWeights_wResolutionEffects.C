@@ -237,12 +237,12 @@ void investigatePtWeights_wResolutionEffects()
 
     int ptBinStart = 1;
     int ptBinMax = 31;
+    
+    // get some parametrized effi
+    TF1 *fEffiAtAll_dp_dptG = getMesonEfficiency("input_for_effi-fit_101.root");
 
     std::string lFnameResFits(
         Form("%s_resolutionFits_%d-%d.root", centAS.data(), ptBinStart, ptBinMax));
-
-    // get some parametrized effi
-    TF1 *fEffiAtAll_dp_dptG = getMesonEfficiency("input_for_effi-fit_101.root");
 
     // create resolution parametrizations
     TPairFitsWAxis lPair_vFits_ptG_i_dp_dr_Axis =
