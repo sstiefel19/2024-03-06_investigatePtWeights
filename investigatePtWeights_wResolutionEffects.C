@@ -278,7 +278,6 @@ void investigatePtWeights_wResolutionEffects()
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
 
-    cout << "before MCEffi_wRes\n";
     // create MCEffi instances
     auto &lMCEffi_AS = *new MCEffi_wRes("lMCEffi_AS",                 //
                                         *lGenDist_AS_dn_dptG,         // _fGenDist_dn_dptG
