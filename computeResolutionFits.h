@@ -1,3 +1,4 @@
+#include "source/dN_dptR_integrand.h" // needed for TPairFitsWAxis
 
 // extended crystal Ball function
 /*

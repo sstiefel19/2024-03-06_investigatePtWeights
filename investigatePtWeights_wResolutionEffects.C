@@ -2,8 +2,8 @@
 
 #include "/analysisSoftware/SupportingMacros/utils_sstiefel_2023.h"
 #include "computeResolutionFits.h"
-#include "MCEffi.h"
-#include "PtWeights.h"
+#include "source/MCEffi.h"
+#include "source/PtWeights.h"
 
 #include <iostream>
 #include <string.h>

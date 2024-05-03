@@ -33,9 +33,6 @@
 void testTH1continuosEvaluationMethods() {
     std::string const lNameMacro("testTH1continuosEvaluationMethods");
 
-    // Load the library
-    // gSystem->Load("libAnalysisSoftwareSSTiefel2023.so");
-    
     std::string centAS("10130023");
     std::string meson("Pi0");
     
