@@ -267,6 +267,7 @@ void investigatePtWeights_wResolutionEffects()
                                           *fGenData_dn_dptG_inv,
                                           lPtGaxis);
 
+    // h_inv -> f_inv -> f
     auto getGenDist = [&hGenDist_AS_inv, &lPtGaxis]()
     {
         TF1 *lGenDist_AS_dn_dptG_inv = new TF1("lGenDist_AS_dn_dptG_inv", "[0] + [1]/(x-[2])", lPtGaxis.GetXmin(), lPtGaxis.GetXmax());
@@ -274,6 +275,14 @@ void investigatePtWeights_wResolutionEffects()
         return multiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
     };
     TF1 *lGenDist_AS_dn_dptG = getGenDist();
+
+    // more accurate way to get the genDist:
+    // h_inv -> h -> f
+    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
+     
+    auto getGenDist_natural = [&hGenDist_AS_inv, &lPtGaxis]()
+    {
+    };
 
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
