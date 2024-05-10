@@ -4,7 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "/Users/stephanstiefelmaier/work/alice/sw/osx_x86-64/ROOT/v6-30-01-alice4-local1/**",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/analysisSoftware/SupportingMacros/**"
             ],
             "defines": [],
             "macFrameworkPath": [

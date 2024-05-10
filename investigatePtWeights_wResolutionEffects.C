@@ -117,7 +117,7 @@ void investigatePtWeights_wResolutionEffects()
     {
         TF1 *lGenDist_AS_dn_dptG_inv = new TF1("lGenDist_AS_dn_dptG_inv", "[0] + [1]/(x-[2])", lPtGaxis.GetXmin(), lPtGaxis.GetXmax());
         hGenDist_AS_inv->Fit(lGenDist_AS_dn_dptG_inv, "N");
-        return multiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
+        return &TF1_enhancer_class::MultiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
     };
     TF1 *lGenDist_AS_dn_dptG = getGenDist();
 

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"investigatePtWeights_wResolutionEffects.C": "cpp",
+			"run.C": "cpp",
+			"testTH1continuosEvaluationMethods.C": "cpp"
+		}
+	}
+}
