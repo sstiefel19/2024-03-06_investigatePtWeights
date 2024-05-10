@@ -1,4 +1,7 @@
 #include "dN_dptR_integrand.h"
+
+#include "TF1.h"
+#include "TF2.h"
 #include "PtWeights.h"
 
 dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,

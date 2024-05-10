@@ -1,10 +1,13 @@
 #pragma once
 
 #include "TAxis.h"
-#include "TLegend.h"
 #include "TList.h"
-
 #include "dN_dptR.h"
+#include "PtWeights.h"
+#include <string>
+
+class TLegend;
+
 
 class MCEffi_wRes
 {
@@ -29,7 +32,7 @@ public:
     TH1 &SampleMeasuredEffi_NW_2(Color_t theLineColor = kBlue);
     TH1 *SampleMeasuredEffi_WW_2(Color_t theLineColor = kBlue);
 
-    void PlotAll(TLegend *theLeg = new TLegend(.73, .64, .90, .90, ""));
+    void PlotAll(TLegend *theLeg = nullptr);
 
     // public data members
     TF1 &fGenDist_dn_dptG; // the assumed distribution of generated particles in MC (will be flat for AS MCs )

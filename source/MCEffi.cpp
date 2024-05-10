@@ -1,7 +1,12 @@
 #include "MCEffi.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2023.h"
 
-#include "PtWeights.h"
+#include "/analysisSoftware/SupportingMacros/TF1_enhancer.h"
+#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TF2.h"
+#include "TLegend.h"
 
 // MCEffi_wRes
 // public:
