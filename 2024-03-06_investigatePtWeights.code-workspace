@@ -10,7 +10,8 @@
 			"run.C": "cpp",
 			"testTH1continuosEvaluationMethods.C": "cpp",
 			"loadAllLibs.C": "cpp",
-			"run_testTH1continuosEvaluationMethods.C": "cpp"
+			"run_testTH1continuosEvaluationMethods.C": "cpp",
+			"run_investigatePtWeights_wResolutionEffects.C": "cpp"
 		}
 	}
 }

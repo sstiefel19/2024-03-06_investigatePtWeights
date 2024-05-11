@@ -1,6 +1,6 @@
 #include "TROOT.h"
 
-void run()
+void run_investigatePtWeights_wResolutionEffects()
 {   
     bool u2 = gROOT->ProcessLine(".L /analysisSoftware/SupportingMacros/utils_sstiefel_2024.cpp+");
     bool u0 = gROOT->ProcessLine(".L /analysisSoftware/SupportingMacros/GCo.cpp+");

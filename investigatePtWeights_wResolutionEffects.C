@@ -50,13 +50,14 @@ TF1 *getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
 
 void investigatePtWeights_wResolutionEffects()
 {
-
     gROOT->Reset();
 
     //~ gStyle->SetOptStat(0);
     gStyle->SetLegendBorderSize(0);
     gStyle->SetLegendTextSize(.03);
 
+    // begin definitions
+    //{
     std::string meson("Pi0");
     std::string cent("10130053");
     std::string centAS("10130023");
@@ -72,7 +73,7 @@ void investigatePtWeights_wResolutionEffects()
 
     int ptBinStart = 1;
     int ptBinMax = 31;
-    
+
     // get some parametrized effi
     TF1 *fEffiAtAll_dp_dptG = getMesonEfficiency("input_for_effi-fit_101.root");
 
@@ -90,6 +91,17 @@ void investigatePtWeights_wResolutionEffects()
 
     //~ drawAllFitsOnTop(lPair_vFits_ptG_i_dp_dr_Axis.first);
     TAxis &lPtGaxis = lPair_vFits_ptG_i_dp_dr_Axis.second;
+    //}
+    // end definitions
+
+    /* ptWeights from not inv form:
+        0) get h_inv from weights file
+        0.5) h_inv -> h -> f
+        1) assume function f for mc generated particles
+        2) sample a histo h from f
+
+        3)calculate weights in the "normal" distributions, not the invariant one
+        */
 
     // get Infos for Weights instance
     TH1 *hGenDist_AS_inv = (TH1 *)getObjectFromPathInFile(
@@ -114,9 +126,8 @@ void investigatePtWeights_wResolutionEffects()
     // more accurate way to get the genDist:
     // h_inv -> h -> f
     TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
-     
-    auto getGenDist_natural = [&hGenDist_AS_inv, &lPtGaxis]()
-    {
+
+    auto getGenDist_natural = [&hGenDist_AS_inv, &lPtGaxis]() {
     };
 
     // TAxis &axisPtR = lPtGaxis;
@@ -130,9 +141,9 @@ void investigatePtWeights_wResolutionEffects()
                                         lAxisPtR,                     // _axisPtR
                                         lPtWeights);
 
-    auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D", //
-                                       *fGenData_dn_dptG_inv, // _fGenDist_dn_dptG
-                                       *fEffiAtAll_dp_dptG,   // _fEffi_dp_dptG
+    auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
+                                       *fGenData_dn_dptG_inv,        // _fGenDist_dn_dptG
+                                       *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                        lAxisPtR);
 
