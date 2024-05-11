@@ -1,9 +1,11 @@
 #pragma once
 
 #include "dN_dptR_integrand.h"
-#include "TF1.h"
-#include "TF2.h"
 
+#include <string>
+
+class TF1;
+class TF2;
 class PtWeights;
 
 class dN_dptR
@@ -29,6 +31,5 @@ public:
 private:
     std::string id;
     dN_dptR_integrand tIntegrand;
-    // TF1 &fIntegrandTF1;
     PtWeights *tPtWeights;
 };

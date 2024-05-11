@@ -1,6 +1,7 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
+#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "/analysisSoftware/SupportingMacros/GCo.h"
 
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2023.h"
 #include "computeResolutionFits.h"
 #include "source/MCEffi.h"
 #include "source/PtWeights.h"
@@ -43,16 +44,6 @@ TF1 *getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
 
     hEffi->Fit(fEffi, "N");
     drawAndAddToLegendF(fEffi, kRed);
-
-    /*
-    MyDerivative *fptr = new MyDerivative(fEffi, 1);  // create the user function class
-    auto fEffi_d1 = fptr->GetD();
-
-    MyDerivative *fptr2 = new MyDerivative(fEffi, 2);  // create the user function class
-    auto fEffi_d2 = fptr2->GetD();
-
-    drawAndAddToLegendF(fEffi_d1);
-    drawAndAddToLegendF(fEffi_d2, kGreen);*/
 
     return fEffi;
 }
@@ -116,7 +107,7 @@ void investigatePtWeights_wResolutionEffects()
     {
         TF1 *lGenDist_AS_dn_dptG_inv = new TF1("lGenDist_AS_dn_dptG_inv", "[0] + [1]/(x-[2])", lPtGaxis.GetXmin(), lPtGaxis.GetXmax());
         hGenDist_AS_inv->Fit(lGenDist_AS_dn_dptG_inv, "N");
-        return multiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
+        return &utils_TF1::MultiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
     };
     TF1 *lGenDist_AS_dn_dptG = getGenDist();
 

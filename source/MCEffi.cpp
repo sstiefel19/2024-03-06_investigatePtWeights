@@ -1,7 +1,12 @@
 #include "MCEffi.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2023.h"
 
-#include "PtWeights.h"
+#include "/analysisSoftware/SupportingMacros/utils_TF1.h"
+#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+
+#include "TCanvas.h"
+#include "TF1.h"
+#include "TF2.h"
+#include "TLegend.h"
 
 // MCEffi_wRes
 // public:
@@ -27,9 +32,9 @@ MCEffi_wRes::MCEffi_wRes(std::string const &_id,
                                              _vFits_ptG_i_dp_dr_wAxis,
                                              _tPtWeights)),
       fGenDist_dn_dptG_WW(
-          _tPtWeights ? getTF1Product(id + "_fGenDist_dn_dptG_WW",
-                                      &tPtWeights->GetTF1(),
-                                      &fGenDist_dn_dptG)
+          _tPtWeights ? &utils_TF1::TF1Product(id + "_fGenDist_dn_dptG_WW",
+                                               tPtWeights->GetTF1(),
+                                               fGenDist_dn_dptG)
                       : nullptr),
       hMCGen_NW(nullptr),
       hMCRec_NW(nullptr),

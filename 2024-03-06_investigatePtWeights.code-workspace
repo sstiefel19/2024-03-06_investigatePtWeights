@@ -1,8 +1,16 @@
 {
-    "settings": {
-        "files.associations": {
-            "investigatePtWeights_wResolutionEffects.C": "cpp",
-            "testTH1continuosEvaluationMethods.C": "cpp"
-        }
-    }
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"investigatePtWeights_wResolutionEffects.C": "cpp",
+			"run.C": "cpp",
+			"testTH1continuosEvaluationMethods.C": "cpp",
+			"loadAllLibs.C": "cpp",
+			"run_testTH1continuosEvaluationMethods.C": "cpp"
+		}
+	}
 }

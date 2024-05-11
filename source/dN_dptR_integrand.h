@@ -1,8 +1,8 @@
 #pragma once
 
-#include "TF1.h"
-#include "TF2.h"
-
+class TAxis;
+class TF1;
+class TF2;
 class PtWeights;
 
 typedef std::pair<std::vector<TF1 *> &, TAxis &> const TPairFitsWAxis;

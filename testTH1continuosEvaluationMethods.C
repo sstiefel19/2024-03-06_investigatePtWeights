@@ -1,20 +1,20 @@
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2023.h"
+#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
 
 #include <iostream>
 #include <string.h>
 #include <vector>
 
-#include "TROOT.h"
-#include "TSystem.h"
+#include "TCanvas.h"
+#include "TEfficiency.h"
 #include "TFile.h"
-#include "TString.h"
+#include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TLegend.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "TCanvas.h"
-#include "TEfficiency.h"
+#include "TROOT.h"
+#include "TSystem.h"
 
 /* currently:
     0) get h_inv from weights file
@@ -31,6 +31,7 @@
     */ 
 
 void testTH1continuosEvaluationMethods() {
+        
     std::string const lNameMacro("testTH1continuosEvaluationMethods");
 
     std::string centAS("10130023");
@@ -40,9 +41,17 @@ void testTH1continuosEvaluationMethods() {
         "/2024/2024-01-29_determinePtWeights/newUploadedFiles/MCSpectraInputPbPb_Stephan_it0b_with24a1.root"));
 
     // prepare canvas already here
-    TCanvas &c1 = getCanvasWithTH2F(lNameMacro, ";pT (GeV);[(1/pT)] dN/dpT", 0., 10., 0., 50., false/*theLogY*/);
-    c1.Divide(1,2);
-    c1.cd(1);
+    TCanvas &c1 = getCanvasWithTH2F(lNameMacro, 
+                                    ";pT (GeV);[(1/pT)] dN/dpT", 
+                                    0., 10., 
+                                    0., 50., 
+                                    false/*theLogY*/,
+                                    2000,
+                                    1000,
+                                    nullptr, nullptr,
+                                    .02 /*theNameTagTextSize*/,
+                                    kGray, /*theNameTagTextColor*/
+                                    1, 2, 1);
     auto leg = getLegend();
     
     // 0) get h_inv from weights file
@@ -83,6 +92,10 @@ void testTH1continuosEvaluationMethods() {
 
     // 5) compare to the same points on f
     c1.cd(2);
+    TH2 &hd21 = *new TH2F("hd1", ";pTG (GeV);ratio", 1, 0., 10., 1, .8, 1.2);
+    hd21.Draw();
     TH1 &hRatio = *divideTH1ByTH1(hExistingEval, hF_inv, "", "hRatio");
-    hRatio.Draw();
+    hRatio.Draw("same");
+    gPad->SetGridy();
+    saveCanvasAs(c1, "pdf");
 }
