@@ -1,6 +1,6 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
-#include "/analysisSoftware/SupportingMacros/GCo.h"
 #include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "/analysisSoftware/SupportingMacros/GCo.h"
 
 #include "computeResolutionFits.h"
 #include "source/MCEffi.h"
@@ -44,16 +44,6 @@ TF1 *getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
 
     hEffi->Fit(fEffi, "N");
     drawAndAddToLegendF(fEffi, kRed);
-
-    /*
-    MyDerivative *fptr = new MyDerivative(fEffi, 1);  // create the user function class
-    auto fEffi_d1 = fptr->GetD();
-
-    MyDerivative *fptr2 = new MyDerivative(fEffi, 2);  // create the user function class
-    auto fEffi_d2 = fptr2->GetD();
-
-    drawAndAddToLegendF(fEffi_d1);
-    drawAndAddToLegendF(fEffi_d2, kGreen);*/
 
     return fEffi;
 }

@@ -4,17 +4,17 @@
 #include <string.h>
 #include <vector>
 
-#include "TROOT.h"
-#include "TSystem.h"
+#include "TCanvas.h"
+#include "TEfficiency.h"
 #include "TFile.h"
-#include "TString.h"
+#include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TLegend.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "TCanvas.h"
-#include "TEfficiency.h"
+#include "TROOT.h"
+#include "TSystem.h"
 
 /* currently:
     0) get h_inv from weights file
@@ -31,6 +31,7 @@
     */ 
 
 void testTH1continuosEvaluationMethods() {
+        
     std::string const lNameMacro("testTH1continuosEvaluationMethods");
 
     std::string centAS("10130023");
