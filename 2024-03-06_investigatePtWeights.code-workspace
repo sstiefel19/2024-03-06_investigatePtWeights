@@ -1,0 +1,8 @@
+{
+    "settings": {
+        "files.associations": {
+            "investigatePtWeights_wResolutionEffects.C": "cpp",
+            "testTH1continuosEvaluationMethods.C": "cpp"
+        }
+    }
+}
