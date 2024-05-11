@@ -6,10 +6,12 @@
 #include "TH1.h"
 
 PtWeights::PtWeights(std::string const &_id,
+                     bool _bComputeInInvariantForm,
                      TH1 const &_hMCGen_dn_dptG,
                      TF1 const &_fTrgtDist_dn_dptG,
                      TAxis const &_axisPtG)
     : id(_id),
+      bComputeInInvariantForm(_bComputeInInvariantForm),
       hMCGen_dn_dptG(*cloneTH1(_hMCGen_dn_dptG,
                                "",
                                (id + "_hMCGen_dn_dptG").data())),
@@ -24,7 +26,15 @@ PtWeights::PtWeights(std::string const &_id,
 {
     fTrgtDist_dn_dptG.SetRange(axisPtG.GetXmin(), axisPtG.GetXmax());
 
-    printf("PtWeights::PtWeights(): created instance %s\n", id.data());
+    printf("PtWeights::PtWeights(): created instance:\n"
+                "\tid: %s\n"
+                "\tbComputeInInvariantForm: %d\n"
+                "\thMCGen_dn_dptG: %s\n"
+                "\tfTrgtDist_dn_dptG: %s\n"
+                "\taxisPtG: nBins %d, xmin %f, xmax %f\n",
+              id.data(), bComputeInInvariantForm, 
+              hMCGen_dn_dptG.GetName(), fTrgtDist_dn_dptG.GetName(), 
+              axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
 }
 
 double PtWeights::GetPtWeight(double *ptG, double *) const
