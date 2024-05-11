@@ -35,6 +35,7 @@ public:
     void PlotAll(TLegend *theLeg = nullptr);
 
     // public data members
+    // todo make const ?!
     TF1 &fGenDist_dn_dptG; // the assumed distribution of generated particles in MC (will be flat for AS MCs )
     dN_dptR tdN_dptR_NW;
 

@@ -1,6 +1,7 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
 #include "/analysisSoftware/SupportingMacros/GCo.h"
+#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "/analysisSoftware/SupportingMacros/utils_TF1.h"
 
 #include "computeResolutionFits.h"
 #include "source/MCEffi.h"
@@ -22,30 +23,69 @@
 #include "TCanvas.h"
 #include "TEfficiency.h"
 
-TF1 *getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
+TF1 &getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
 {
 
-    TH1 *hEffi = (TH1 *)getObjectFromPathInFile(fname, "hMyTrueEffiA");
+    TH1 &hEffi = *(TH1*)getObjectFromPathInFile(fname, "hMyTrueEffiA");
     TCanvas *c3 = new TCanvas("c3", "c3", 2000, 1000);
     TH2 *hd21 = new TH2F("hd1", ";MC pT(GeV);dP/dptG", 1, 0., theXmax, 1, 1e-6, 2e-3);
     hd21->Draw();
     //~ gPad->SetLogy();
-
     auto leg2 = new TLegend();
-
     auto drawAndAddToLegendF = [leg2](TF1 *f, EColor c = kBlue)
     {f->SetLineColor(c); f->Draw("same"); leg2->AddEntry(f,f->GetName()); };
 
-    hEffi->Draw("same");
+    hEffi.Draw("same");
     leg2->Draw("same");
 
-    TF1 *fEffi = new TF1("fEffi", " ( 1e-5 + [0]*x + [1]*x*x + [2]*x*x*x + [3]*x*x*x*x)", 0., theXmax);
-    fEffi->SetParameters(1, 1, -1, 0.);
+    TF1 &fEffi = *new TF1("fEffi", " ( 1e-5 + [0]*x + [1]*x*x + [2]*x*x*x + [3]*x*x*x*x)", 0., theXmax);
+    fEffi.SetParameters(1, 1, -1, 0.);
 
-    hEffi->Fit(fEffi, "N");
-    drawAndAddToLegendF(fEffi, kRed);
-
+    hEffi.Fit(&fEffi, "N");
+    drawAndAddToLegendF(&fEffi, kRed);
     return fEffi;
+}
+
+// set first parameter to "auto" for auto-concatenated name
+TF1 &createGenDistFit(std::string const &theResultNameInfo,
+                      TH1 &theTH1GenDist_dn_dptG,
+                      bool theTH1IsInvariant,
+                      TAxis const &thePtGaxis,
+                      bool theMultiplyResultTF1ByX = false)
+{
+    // on top for readability
+    bool lResultWillBeInvariant = theTH1IsInvariant && !theMultiplyResultTF1ByX;
+
+    // must not be empty
+    if (!theResultNameInfo.size())
+    {
+        printf("investigatePtWeights_wResolutionEffects::createGenDistFit():\n\t"
+               "ERROR: theResultNameInfo can't be empty!\n"
+               "\tChose explicit name or \'auto\' for auto-concatenated name (verbose).\n"
+               "\tReturning dummy TF1.\n");
+        return utils_TF1::GetDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
+    }
+
+    // compile result name
+    std::string lResultFullName(
+        theResultNameInfo != "auto" ? theResultNameInfo
+                                    : Form("createGenDistFit_dn_dptG_from_%s_%s",
+                                           theTH1GenDist_dn_dptG.GetName(),
+                                           lResultWillBeInvariant ? "_inv" : ""));
+
+    // create result TF1
+    TF1 &lTF1GenDist_dn_dptG = *new TF1(lResultFullName.data(),
+                                        theTH1IsInvariant ? "[0] + [1]/(x-[2])"
+                                                          : "[0]",
+                                        thePtGaxis.GetXmin(),
+                                        thePtGaxis.GetXmax());
+    // perform fit
+    theTH1GenDist_dn_dptG.Fit(&lTF1GenDist_dn_dptG, "N");
+
+    return (!theMultiplyResultTF1ByX)
+               ? lTF1GenDist_dn_dptG
+               : utils_TF1::MultiplyTF1ByX(lResultFullName,
+                                           lTF1GenDist_dn_dptG);
 }
 
 void investigatePtWeights_wResolutionEffects()
@@ -56,43 +96,57 @@ void investigatePtWeights_wResolutionEffects()
     gStyle->SetLegendBorderSize(0);
     gStyle->SetLegendTextSize(.03);
 
-    // begin definitions
-    //{
+    // 0) definitions
+    int ptBinStart = 1;
+    int ptBinMax = 31;
+
     std::string meson("Pi0");
     std::string cent("10130053");
     std::string centAS("10130023");
     std::string fnameAS("/trains/2024-02-26_allMCs_ptw_0b/LHC24a1/GCo_997.root");
     // std::string fnameAS("/trains/2024-01-26_LHC24a1_QA_noPtW/GCo_997_both.root");
 
+    std::string lFnameInputEffiFit("input_for_effi-fit_101.root");
+    std::string lFnameResFits(
+        Form("%s_resolutionFits_%d-%d.root", centAS.data(), ptBinStart, ptBinMax));
+
     std::string fnameWeightsFile(Form(
         "/2024/2024-01-29_determinePtWeights/newUploadedFiles/MCSpectraInputPbPb_Stephan_it0b_with24a1.root"));
 
     GCo gAS({fnameAS, "GammaConvV1_997/", centAS, "_0d200009ab770c00amd0404000_0152101500000000"});
-    //~ TH2* h2Resolution = (TH2*)gMB.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt");
     TH2 &h2Resolution = *(TH2 *)gAS.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt");
+    //~ TH2* h2Resolution = (TH2*)gMB.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt");
 
-    int ptBinStart = 1;
-    int ptBinMax = 31;
+    auto setupWeightsInstance =
+        [&meson, &cent, &centAS, &fnameWeightsFile](std::string const &theID,
+                                                    TAxis const &thePtGaxis)
+    {
+        // get Infos for Weights instance
+        TH1 &hGenDist_AS_inv = *(TH1 *)getObjectFromPathInFile(
+            fnameWeightsFile, meson + "_LHC24a1_5TeV_" + centAS);
+        TF1 &fGenData_dn_dptG_inv = *(TF1 *)getObjectFromPathInFile(
+            fnameWeightsFile, meson + "_Data_5TeV_" + cent.substr(0, 6));
 
-    // get some parametrized effi
-    TF1 *fEffiAtAll_dp_dptG = getMesonEfficiency("input_for_effi-fit_101.root");
+        return new PtWeights(theID,
+                             hGenDist_AS_inv,
+                             fGenData_dn_dptG_inv,
+                             thePtGaxis);
+    };
 
-    std::string lFnameResFits(
-        Form("%s_resolutionFits_%d-%d.root", centAS.data(), ptBinStart, ptBinMax));
+    // 2) get some parametrized effi
+    TF1 &fEffiAtAll_dp_dptG = getMesonEfficiency(lFnameInputEffiFit);
 
-    // create resolution parametrizations
+    // 3) create resolution parametrizations
     TPairFitsWAxis lPair_vFits_ptG_i_dp_dr_Axis =
         computeResolutionFits(h2Resolution,
                               ptBinStart,
                               ptBinMax,
                               4 /*nRebin_r*/,
                               lFnameResFits,
+                              true /*drawAllFitsOverlayed*/,
                               true /*plotSingles*/);
 
-    //~ drawAllFitsOnTop(lPair_vFits_ptG_i_dp_dr_Axis.first);
     TAxis &lPtGaxis = lPair_vFits_ptG_i_dp_dr_Axis.second;
-    //}
-    // end definitions
 
     /* ptWeights from not inv form:
         0) get h_inv from weights file
@@ -103,47 +157,37 @@ void investigatePtWeights_wResolutionEffects()
         3)calculate weights in the "normal" distributions, not the invariant one
         */
 
-    // get Infos for Weights instance
-    TH1 *hGenDist_AS_inv = (TH1 *)getObjectFromPathInFile(
-        fnameWeightsFile, meson + "_LHC24a1_5TeV_" + centAS);
-    TF1 *fGenData_dn_dptG_inv = (TF1 *)getObjectFromPathInFile(
-        fnameWeightsFile, std::string(meson + "_Data_5TeV_" + cent.substr(0, 6)));
+    PtWeights &lPtWeights = *setupWeightsInstance("lPtWeights",
+                                                  lPtGaxis);
 
-    PtWeights *lPtWeights = new PtWeights("lPtWeights",
-                                          *hGenDist_AS_inv,
-                                          *fGenData_dn_dptG_inv,
-                                          lPtGaxis);
+    // make a copy since we need to fit the histogram which stupidly changes the histogram itself
+    TH1 &hGenDist_AS_inv = *cloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
 
-    // h_inv -> f_inv -> f
-    auto getGenDist = [&hGenDist_AS_inv, &lPtGaxis]()
-    {
-        TF1 *lGenDist_AS_dn_dptG_inv = new TF1("lGenDist_AS_dn_dptG_inv", "[0] + [1]/(x-[2])", lPtGaxis.GetXmin(), lPtGaxis.GetXmax());
-        hGenDist_AS_inv->Fit(lGenDist_AS_dn_dptG_inv, "N");
-        return &utils_TF1::MultiplyTF1ByX(*lGenDist_AS_dn_dptG_inv, "lGenDist_AS_dn_dptG");
-    };
-    TF1 *lGenDist_AS_dn_dptG = getGenDist();
+    TF1 &lGenDist_AS_dn_dptG = createGenDistFit("auto",
+                                                hGenDist_AS_inv,
+                                                true /*theTH1IsInvariant*/,
+                                                lPtGaxis,
+                                                true /*theMultiplyResultTF1ByX*/);
 
     // more accurate way to get the genDist:
     // h_inv -> h -> f
-    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
-
-    auto getGenDist_natural = [&hGenDist_AS_inv, &lPtGaxis]() {
-    };
+    // TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
 
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
 
     // create MCEffi instances
     auto &lMCEffi_AS = *new MCEffi_wRes("lMCEffi_AS",                 //
-                                        *lGenDist_AS_dn_dptG,         // _fGenDist_dn_dptG
-                                        *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
+                                        lGenDist_AS_dn_dptG,          // _fGenDist_dn_dptG
+                                        fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
                                         lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                         lAxisPtR,                     // _axisPtR
-                                        lPtWeights);
+                                        &lPtWeights);
 
+    TF1 &fGenData_dn_dptG = lPtWeights.GetTF1TrgtDist_dn_dptG();
     auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
-                                       *fGenData_dn_dptG_inv,        // _fGenDist_dn_dptG
-                                       *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
+                                       fGenData_dn_dptG,         // _fGenDist_dn_dptG
+                                       fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                        lAxisPtR);
 
