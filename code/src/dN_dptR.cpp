@@ -1,16 +1,14 @@
-#include "dN_dptR.h"
-
+#include "../include/dN_dptR.h"
+#include "../include/dN_dptR_integrand.h"
+#include "../include/PtWeights.h"
 
 #include "TF1.h"
 #include "TF2.h"
 
-#include "dN_dptR_integrand.h"
-#include "PtWeights.h"
-
 dN_dptR::dN_dptR(std::string const &_id,
                  TF1 &_fGen_dn_dptG,
                  TF1 &_fEffi_dp_dptG,
-                 TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+                 utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
                  PtWeights *_tPtWeights /*= nullptr*/)
     : id(_id),
       tIntegrand(_id + "_integrand",

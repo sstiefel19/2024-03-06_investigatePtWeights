@@ -15,7 +15,7 @@ public:
     MCEffi_wRes(std::string const &_id,
                 TF1 &_fGenDist_dn_dptG,
                 TF1 &_fEffi_dp_dptG,
-                TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+                utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
                 TAxis &_axisPtR,
                 PtWeights *_tPtWeights = nullptr);
                 

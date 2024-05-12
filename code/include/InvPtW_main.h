@@ -1,11 +1,11 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
-#include "/analysisSoftware/SupportingMacros/GCo.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
-#include "/analysisSoftware/SupportingMacros/utils_TF1.h"
+#pragma once
+#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
 
-#include "../computeResolutionFits.h"
-#include "MCEffi.h"
-#include "PtWeights.h"
+#include "../include/MCEffi.h"
+#include "../include/PtWeights.h"
 
 #include <iostream>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
-#include "TString.h"
+#include "TString.h"   
 #include "TH1.h"
 #include "TH2.h"
 #include "TLegend.h"
@@ -48,7 +48,7 @@ public:
                          bool &theResultIsInvariant_out);
 
     // detector parametrizations
-    TPairFitsWAxis FitDetector(const std::string &theFnameInputEffiFit,
+    utils_fits::TPairFitsWAxis FitDetector(const std::string &theFnameInputEffiFit,
                                const std::string &theFnameResFits,
                                TH2 &theH2Resolution,
                                int thePtBinStart,

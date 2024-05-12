@@ -1,6 +1,8 @@
 #pragma once
-#include "ComputeResolutionFits.h"
-#include "source/dN_dptR_integrand.h" // needed for TPairFitsWAxis
+#include "../include/ComputeResolutionFits.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TH1.h"
@@ -24,14 +26,14 @@ ComputeResolutionFits::ComputeResolutionFits(TH2 &theH2Resolution,
     ComputeResolutionFits(theH2Resolution, binStart, ptBinMax, nR, fnameSave, theDrawAllFitsOverlayed, thePlotSingles);
 }
 
-static TPairFitsWAxis &
+utils_fits::TPairFitsWAxis &
 ComputeResolutionFits::Compute(TH2 &theH2Resolution,
                                int binStart,
                                int ptBinMax,
-                               int nR = 4,
-                               std::string const &fnameSave = "computeResolutionFits.root",
-                               bool theDrawAllFitsOverlayed = true,
-                               bool thePlotSingles = false)
+                               int nR,
+                               std::string const &fnameSave,
+                               bool theDrawAllFitsOverlayed /* = true */,
+                               bool thePlotSingles /* = false */)
 
 {
     std::vector<TH1 *> &vHists_ptG_i_dn_dr = *new std::vector<TH1 *>(ptBinMax + 1, static_cast<TH1 *>(nullptr));
@@ -39,7 +41,7 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
 
     // TAxis          &lPtGAxis = *theH2Resolution.GetXaxis();
     TAxis &lPtGAxis = *copyTAxisUpToPt(*theH2Resolution.GetXaxis(), 9.9);
-    TPairFitsWAxis &lResult = *new TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
+    utils_fits::TPairFitsWAxis &lResult = *new utils_fits::TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
 
     // plot th2
     TCanvas &cR1 = *new TCanvas("computeResolutionFits_TH2", "computeResolutionFits_TH2", 2000, 1000);
@@ -57,7 +59,7 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
         {
             printf("a file with name %s exists alerady. Trying to obtain fits from there..\n",
                    fnameSave.data());
-            if (getFitsFromFile(infile, binStart, ptBinMax, lResult))
+            if (GetFitsFromFile(infile, binStart, ptBinMax, lResult))
             {
                 printf(" worked :)\n");
                 return lResult;
@@ -94,11 +96,12 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
         h1r.SetTitle(h1r.GetName());
 
         // do the fit
-        auto lPairBefNormNorm =
-            getCrystallBallFit(h1r,
-                               i == 3, /*theGaussOnly*/
-                               -.6, .2, -1., 1.,
-                               i == 7 ? lLastBinFoundParams : nullptr);
+        auto lPairBefNormNorm = utils_fits::GetCrystallBallFit(
+            h1r,
+            i == 3, /*theGaussOnly*/
+            -.6, .2, -1., 1.,
+            i == 7 ? lLastBinFoundParams : nullptr);
+
         TF1 &fitBN = lPairBefNormNorm.first;
         TF1 &fitN = lPairBefNormNorm.second;
         vFits_ptG_i_dp_dr[i] = &fitN;
@@ -141,16 +144,16 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
     }
     if (theDrawAllFitsOverlayed)
     {
-        drawAllFitsOnTop(vFits_ptG_i_dp_dr);
+        utils_fits::DrawAllFitsOnTop(vFits_ptG_i_dp_dr);
     }
     return lResult;
 }
 
-static bool ComputeResolutionFits::
+bool ComputeResolutionFits::
     GetFitsFromFile(TFile &theFile,
                     int binStart,
                     int ptBinMax,
-                    TPairFitsWAxis &thePair)
+                    utils_fits::TPairFitsWAxis &thePair)
 {
     if (!theFile.IsOpen())
     {
@@ -172,4 +175,3 @@ static bool ComputeResolutionFits::
     }
     return true;
 }
-

@@ -1,5 +1,5 @@
-#include "PtWeights.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "../include/PtWeights.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
 
 #include "TF1.h"
 #include "TF2.h"

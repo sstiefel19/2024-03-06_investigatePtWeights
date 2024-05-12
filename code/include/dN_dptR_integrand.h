@@ -1,11 +1,12 @@
 #pragma once
 
+// for utils_fits::TPairFitsWAxis
+#include "ComputeResolutionFits.h"
+
 class TAxis;
 class TF1;
 class TF2;
 class PtWeights;
-
-typedef std::pair<std::vector<TF1 *> &, TAxis &> const TPairFitsWAxis;
 
 class dN_dptR_integrand
 {
@@ -13,7 +14,7 @@ public:
     dN_dptR_integrand(std::string const &_id,
                       TF1 &_fGen_dn_dptG,
                       TF1 &_fEffi_dp_dptG,
-                      TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+                      utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
                       PtWeights *_tPtWeights = nullptr);
 
     std::string const &GetID() const { return id; }
@@ -47,7 +48,5 @@ private:
 
     // xy[0] = ptG, xy[1] = ptR. needed for fTF2
     double Evaluate_2D(double *xy, double *) const;
-
-
 };    
 

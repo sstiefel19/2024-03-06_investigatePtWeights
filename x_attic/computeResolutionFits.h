@@ -1,4 +1,4 @@
-#include "source/dN_dptR_integrand.h" // needed for TPairFitsWAxis
+#include "source/dN_dptR_integrand.h" // needed for utils_fits::TPairFitsWAxis
 
 // extended crystal Ball function
 /*
@@ -120,7 +120,7 @@ getCrystallBallFit(TH1 &theH,
 bool getFitsFromFile(TFile &theFile,
                      int binStart,
                      int ptBinMax,
-                     TPairFitsWAxis &thePair)
+                     utils_fits::TPairFitsWAxis &thePair)
 {
     if (!theFile.IsOpen())
     {
@@ -143,7 +143,7 @@ bool getFitsFromFile(TFile &theFile,
     return true;
 }
 
-TPairFitsWAxis &
+utils_fits::TPairFitsWAxis &
 computeResolutionFits(TH2 &theH2Resolution,
                       int binStart,
                       int ptBinMax,
@@ -157,7 +157,7 @@ computeResolutionFits(TH2 &theH2Resolution,
 
     // TAxis          &lPtGAxis = *theH2Resolution.GetXaxis();
     TAxis &lPtGAxis = *copyTAxisUpToPt(*theH2Resolution.GetXaxis(), 9.9);
-    TPairFitsWAxis &lResult = *new TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
+    utils_fits::TPairFitsWAxis &lResult = *new utils_fits::TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
 
     // plot th2
     TCanvas &cR1 = *new TCanvas("computeResolutionFits_TH2", "computeResolutionFits_TH2", 2000, 1000);

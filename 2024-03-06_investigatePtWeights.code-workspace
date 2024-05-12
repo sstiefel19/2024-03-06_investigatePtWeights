@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../pcg/AnalysisSoftware/utils_sstiefel_2024"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"run_InvPtW_main.C": "cpp",
+			"testTH1continuosEvaluationMethods.C": "cpp"
+		}
+	}
+}

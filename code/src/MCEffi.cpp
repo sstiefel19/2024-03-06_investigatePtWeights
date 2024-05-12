@@ -1,7 +1,7 @@
-#include "MCEffi.h"
+#include "../include/MCEffi.h"
 
-#include "/analysisSoftware/SupportingMacros/utils_TF1.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
 
 #include "TCanvas.h"
 #include "TF1.h"
@@ -13,7 +13,7 @@
 MCEffi_wRes::MCEffi_wRes(std::string const &_id,
                          TF1 &_fGenDist_dn_dptG,
                          TF1 &_fEffi_dp_dptG,
-                         TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+                         utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
                          TAxis &_axisPtR,
                          PtWeights *_tPtWeights /*= nullptr*/)
     : id(_id),

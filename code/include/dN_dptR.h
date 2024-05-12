@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dN_dptR_integrand.h"
+#include "../include/dN_dptR_integrand.h"
 
 #include <string>
 
@@ -14,7 +14,7 @@ public:
     dN_dptR(std::string const &_id,
             TF1 &_fGen_dn_dptG,
             TF1 &_fEffi_dp_dptG,
-            TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+            utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
             PtWeights *_fPtWeights = nullptr);
 
     // ptG will be integrated out

@@ -1,15 +1,15 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
-#include "InvPtW_main.h"
+#include "../include/InvPtW_main.h"
 
-#include "/analysisSoftware/SupportingMacros/GCo.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
-#include "/analysisSoftware/SupportingMacros/utils_TF1.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
 
-#include "dN_dptR_integrand.h"
+#include "../include/dN_dptR_integrand.h"
 
-#include "../computeResolutionFits.h"
-#include "MCEffi.h"
-#include "PtWeights.h"
+#include "/2024/2024-03-06_investigatePtWeights/code/include/computeResolutionFits.h"
+#include "../include/MCEffi.h"
+#include "../include/PtWeights.h"
 
 #include <iostream>
 #include <string.h>
@@ -92,26 +92,34 @@ TF1 &InvPtW_main::FitGenDistHisto(std::string const &theResultNameInfo,
 }
 
 // detector parametrizations
-TPairFitsWAxis InvPtW_main::FitDetector(const std::string &theFnameInputEffiFit,
-                                        const std::string &theFnameResFits,
-                                        TH2 &theH2Resolution,
-                                        int thePtBinStart,
-                                        int thePtBinMax,
-                                        int theNRebin_r,
-                                        bool theDrawAllFitsOverlayed,
-                                        bool thePlotSingles,
-                                        TF1 *&theEffiAtAll_dp_dptG_out)
+utils_fits::TPairFitsWAxis InvPtW_main::FitDetector(const std::string &theFnameInputEffiFit,
+                                                    const std::string &theFnameResFits,
+                                                    TH2 &theH2Resolution,
+                                                    int thePtBinStart,
+                                                    int thePtBinMax,
+                                                    int theNRebin_r,
+                                                    bool theDrawAllFitsOverlayed,
+                                                    bool thePlotSingles,
+                                                    TF1 *&theEffiAtAll_dp_dptG_out)
 {
     theEffiAtAll_dp_dptG_out = &GetMesonEfficiency(theFnameInputEffiFit);
 
     // 2) create resolution parametrizations
-    return computeResolutionFits(theH2Resolution,
-                                 thePtBinStart,
-                                 thePtBinMax,
-                                 theNRebin_r,
-                                 theFnameResFits,
-                                 true /*drawAllFitsOverlayed*/,
-                                 false /*plotSingles*/);
+    ComputeResolutionFits lCRF(theH2Resolution,
+                               thePtBinStart,
+                               thePtBinMax,
+                               theNRebin_r,
+                               theFnameResFits,
+                               theDrawAllFitsOverlayed,
+                               thePlotSingles);
+
+    return lCRF.Compute(theH2Resolution,
+                        thePtBinStart,
+                        thePtBinMax,
+                        theNRebin_r,
+                        theFnameResFits,
+                        true /*drawAllFitsOverlayed*/,
+                        false /*plotSingles*/);
 }
 
 InvPtW_main::InvPtW_main(std::string const &theMeson,
@@ -129,10 +137,10 @@ InvPtW_main::InvPtW_main(std::string const &theMeson,
       centAS(theCentAS),
       fnameAS(theFnameAS),
       lFnameInputEffiFit(theFnameInputEffiFit),
-      lFnameResFits(Form("%s_resolutionFits_%d-%d.root", 
-                    centAS.data(), 
-                    ptBinStart, 
-                    ptBinMax)),
+      lFnameResFits(Form("%s_resolutionFits_%d-%d.root",
+                         centAS.data(),
+                         ptBinStart,
+                         ptBinMax)),
       fnameWeightsFile(theFnameWeightsFile),
       ptBinStart(thePtBinStart),
       ptBinMax(thePtBinMax),
@@ -165,24 +173,24 @@ PtWeights &InvPtW_main::SetupWeightsInstance(std::string const &theID,
         fnameWeightsFile, meson + "_Data_5TeV_" + cent.substr(0, 6));
 
     return *new PtWeights(theID,
-                         theComputedInInvariantForm,
-                         hGenDist_AS_inv,
-                         fGenData_dn_dptG_inv,
-                         thePtGaxis);
+                          theComputedInInvariantForm,
+                          hGenDist_AS_inv,
+                          fGenData_dn_dptG_inv,
+                          thePtGaxis);
 }
 
 int InvPtW_main::Main()
 {
     TF1 *lEffiAtAll_dp_dptG = nullptr;
-    TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis = FitDetector(lFnameInputEffiFit,
-                                                               lFnameResFits,
-                                                               h2Resolution,
-                                                               ptBinStart,
-                                                               ptBinMax,
-                                                               4 /*nR*/,
-                                                               true /*theDrawAllFitsOverlayed*/,
-                                                               false /*thePlotSingles*/,
-                                                               lEffiAtAll_dp_dptG);
+    utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis = FitDetector(lFnameInputEffiFit,
+                                                                           lFnameResFits,
+                                                                           h2Resolution,
+                                                                           ptBinStart,
+                                                                           ptBinMax,
+                                                                           4 /*nR*/,
+                                                                           true /*theDrawAllFitsOverlayed*/,
+                                                                           false /*thePlotSingles*/,
+                                                                           lEffiAtAll_dp_dptG);
 
     /*
         more accurate way to get the genDist:
@@ -192,8 +200,8 @@ int InvPtW_main::Main()
     bool lGenDistTF1IsInvariant = false; // this initialized value is not used
     TAxis &lPtGaxis = lPair_vFits_ptG_i_dp_dr_Axis.second;
     PtWeights &lPtWeights = SetupWeightsInstance("lPtWeights",
-                                                  lGenDistTF1IsInvariant,
-                                                  lPtGaxis);
+                                                 lGenDistTF1IsInvariant,
+                                                 lPtGaxis);
 
     // 4) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS = FitGenDistHisto("auto",
@@ -208,7 +216,7 @@ int InvPtW_main::Main()
     TAxis lAxisPtR(100, 0., 10.);
     auto &lMCEffi_AS = *new MCEffi_wRes("lMCEffi_AS",                 //
                                         lGenDistTF1_dn_dptG_AS,       // _fGenDist_dn_dptG
-                                        *lEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
+                                        *lEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                         lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                         lAxisPtR,                     // _axisPtR
                                         &lPtWeights);
@@ -216,7 +224,7 @@ int InvPtW_main::Main()
     TF1 &fGenData_dn_dptG = lPtWeights.GetTF1TrgtDist_dn_dptG();
     auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
                                        fGenData_dn_dptG,             // _fGenDist_dn_dptG
-                                       *lEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
+                                       *lEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                        lAxisPtR);
 

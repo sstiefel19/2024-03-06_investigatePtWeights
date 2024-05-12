@@ -149,7 +149,7 @@ void investigatePtWeights_wResolutionEffects()
     TF1 &fEffiAtAll_dp_dptG = getMesonEfficiency(lFnameInputEffiFit);
 
     // 2) create resolution parametrizations
-    TPairFitsWAxis lPair_vFits_ptG_i_dp_dr_Axis =
+    utils_fits::TPairFitsWAxis lPair_vFits_ptG_i_dp_dr_Axis =
         computeResolutionFits(h2Resolution,
                               ptBinStart,
                               ptBinMax,

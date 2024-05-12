@@ -1,3 +1,3 @@
-rm *.d *.so *.pcm
-rm */*.d */*.so */*.pcm
+rm */*/*.d */*/*.so */*/*.pcm */*/*ACLiC*
+rm  *.d *.so *.pcm *ACLiC*
 
