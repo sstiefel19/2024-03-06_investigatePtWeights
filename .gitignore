@@ -7,3 +7,7 @@
 **/.DS_Store
 
 
+**/*.cxx
+**/*.o
+**/*_maincpp
+**/*_ACLiC_*
