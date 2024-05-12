@@ -15,6 +15,6 @@ void run_InvPtW_main()
         "10130023",
         "/trains/2024-02-26_allMCs_ptw_0b/LHC24a1/GCo_997.root");
 
-   lInvPtW_main.Main();
+   lInvPtW_main.Main(false /* theUseInvariantForm */);
 
 }

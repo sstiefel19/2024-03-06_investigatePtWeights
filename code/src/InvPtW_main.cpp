@@ -94,20 +94,30 @@ PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
                "\tReturning dummy PtWeights instance.\n");
         return *new PtWeights(theID);
     }
-    /*PtWeights(std::string const &_fID,
-                bool _bComputeInInvariantForm,
-                TH1 const &_hMCGen_dn_dptG,
-                TF1 const &_fTrgtDist_dn_dptG,
-                TAxis const &_axisPtG);*/
-    return *new PtWeights(theID,
-                          theComputeInInvariantForm,
-                          hGenDist_dn_dptG_inv,
-                          fTargetGenData_dn_dptG_inv,
-                          *aAxisPtG);
+
+    /*std::string const &_fID,
+              bool _bComputeInInvariantForm,
+              TH1 const &_hMCGen_dn_dptG,
+              TF1 const &_fTrgtDist_dn_dptG,
+              TAxis const &_axisPtG);*/
+
+    return theComputeInInvariantForm ? *new PtWeights(
+                                           theID,
+                                           theComputeInInvariantForm /*_bComputeInInvariantForm*/,
+                                           hGenDist_dn_dptG_inv /*_hMCGen_dn_dptG*/,
+                                           fTargetGenData_dn_dptG_inv /*_fTrgtDist_dn_dptG*/,
+                                           *aAxisPtG)
+
+                                     : *new PtWeights(
+                                           theID,
+                                           theComputeInInvariantForm,
+                                           *hGenDist_dn_dptG,
+                                           *fTargetGenData_dn_dptG,
+                                           *aAxisPtG);
 }
 
-int InvPtW_main::Main()
-{   
+int InvPtW_main::Main(bool theUseInvariantForm)
+{
     // 0) fit overall efficiency
     // this call also initialized aAxisPtG
     int lNRebin_r = 4;
@@ -116,23 +126,22 @@ int InvPtW_main::Main()
                     true /* theDrawAllFitsOverlayed */,
                     false /* thePlotSingles */);
 
-    /*
-        more accurate way to get the genDist:
-        h_inv -> h -> f
-        TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
-    */
+     /*more accurate way to get the genDist:
+    h_inv -> h -> f
+    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
 
-   // 1) create PtWeights instance
-    bool lComputeInInvariantForm = true;
-    PtWeights &lPtWeights = CreatePtWeightsInstance("lPtWeights",
-                                                    lComputeInInvariantForm);
+    // 1) create PtWeights instance
+    PtWeights &lPtWeights_ = CreatePtWeightsInstance( theUseInvariantForm ? "lPtWeights_inv"
+                                                                          : "lPtWeights_special",
+        theUseInvariantForm);
 
     // 2) fit the genDist
     bool lGenDistTF1IsInvariant_output = false;
     TF1 &lGenDistTF1_dn_dptG_AS = FitGenDistHisto("auto",
-                                                  *cloneTH1(lPtWeights.GetTH1MCGen_dn_dptG()), // not sure if clone is necessary
-                                                  true /*theTH1IsInvariant*/,
-                                                  true /*theMultiplyResultTF1ByX*/,
+                                                  theUseInvariantForm ? hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG*/ // not sure if clone is necessary
+                                                                      : *hGenDist_dn_dptG,
+                                                  theUseInvariantForm /*theTH1IsInvariant*/,
+                                                  theUseInvariantForm /*theMultiplyResultTF1ByX*/,
                                                   lGenDistTF1IsInvariant_output /* theResultIsInvariant_out */);
 
     // 3 create MCEffi instances
@@ -143,10 +152,10 @@ int InvPtW_main::Main()
                                         *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                         lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                         lAxisPtR,                     // _axisPtR
-                                        &lPtWeights);
+                                        &lPtWeights_);
 
     auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
-                                       *fTargetGenData_dn_dptG,             // _fGenDist_dn_dptG
+                                       *fTargetGenData_dn_dptG,      // _fGenDist_dn_dptG
                                        *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                        lAxisPtR);

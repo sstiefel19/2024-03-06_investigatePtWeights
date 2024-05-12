@@ -48,7 +48,7 @@ public:
                                             bool theDrawAllFitsOverlayed,
                                             bool thePlotSingles);
 
-    int Main();
+    int Main(bool theUseInvariantForm);
 
 private:
     PtWeights &CreatePtWeightsInstance(std::string const &theID,
