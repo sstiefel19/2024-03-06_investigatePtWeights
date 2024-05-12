@@ -14,7 +14,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
-#include "TString.h"   
+#include "TString.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TLegend.h"
@@ -26,16 +26,13 @@
 class InvPtW_main
 {
 public:
-    InvPtW_main(std::string const &theMeson,
-                std::string const &theCent,
-                std::string const &theCentAS,
-                std::string const &theFnameAS,
+    InvPtW_main(std::string const &theID,
                 std::string const &theFnameInputEffiFit,
                 std::string const &theFnameWeightsFile,
-                int thePtBinStart,
-                int thePtBinMax,
-                bool theGenDistTH1IsInvariant,
-                bool theMultiplyResultTF1ByX);
+                std::string const &theMeson,
+                std::string const &theCent,
+                std::string const &theCentAS,
+                std::string const &theFnameAS);
 
     TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
 
@@ -43,45 +40,57 @@ public:
     TF1 &FitGenDistHisto(std::string const &theResultNameInfo,
                          TH1 &theTH1GenDist_dn_dptG,
                          bool theTH1IsInvariant,
-                         TAxis const &thePtGaxis,
                          bool theMultiplyResultTF1ByX,
                          bool &theResultIsInvariant_out);
 
     // detector parametrizations
-    utils_fits::TPairFitsWAxis &FitDetector(const std::string &theFnameInputEffiFit,
-                               const std::string &theFnameResFits,
-                               TH2 &theH2Resolution,
-                               int thePtBinStart,
-                               int thePtBinMax,
-                               int theNRebin_r,
-                               bool theDrawAllFitsOverlayed,
-                               bool thePlotSingles);
-    
-    PtWeights &SetupWeightsInstance(std::string const &theID,
-                                    bool theComputedInInvariantForm,
-                                    TAxis const &thePtGaxis);
+    utils_fits::TPairFitsWAxis &FitDetector(int theNRebin_r,
+                                            bool theDrawAllFitsOverlayed,
+                                            bool thePlotSingles);
 
     int Main();
 
 private:
-    int ptBinStart;
-    int ptBinMax;
+    PtWeights &CreatePtWeightsInstance(std::string const &theID,
+                                       bool theComputeInInvariantForm);
 
-    bool lGenDistTH1IsInvariant;
-    bool lMultiplyResultTF1ByX;
+    // ==================== defining & intrinsic properties ====================
+    // fnames for detector info and weights
+    std::string sFnameInputEffiFit;
+    std::string sFnameWeightsFile;
 
-    std::string meson;
-    std::string cent;
-    std::string centAS;
-    std::string fnameAS;
+    // for the fitting
+    int iPtBinStart = 1;
+    int iPtBinMax = 31;
+
+    // input filenames
+    std::string sMeson;
+    std::string sCent;
+    std::string sCentAS;
+    std::string sFnameAS;
     // std::string fnameAS("/trains/2024-01-26_LHC24a1_QA_noPtW/GCo_997_both.root");
 
-    std::string lFnameInputEffiFit;
-    std::string lFnameResFits;
-    std::string fnameWeightsFile;
-    GCo gAS;
-    TH2F h2Resolution;
+    // ======================= derived properties ==============================
+    std::string sFnameResFits;
 
-    TF1 *lEffiAtAll_dp_dptG;
+    // holding detector reponse ptR vs. ptG
+    TH2  *h2Resolution;
+
+    // defining data and MC distributions, will be extracted from above files
+    TH1 &hGenDist_dn_dptG_inv;
+    TF1 &fTargetGenData_dn_dptG_inv;
+
+    // from input derived information
+    TH1  *hGenDist_dn_dptG;
+    TF1  *fTargetGenData_dn_dptG;
+
+    // measured output variables
+    TF1 *fEffiAtAll_dp_dptG;
+
+    // ======================= helper functions ===============================
+    // helper members for accessing GammaConvV1 output files
+    std::string const id;
+    GCo *gConvV1_AS;
+    TAxis *aAxisPtG; // gets intialized in FitDetector
 
 };

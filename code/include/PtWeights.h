@@ -13,6 +13,7 @@ public:
               TH1 const &_hMCGen_dn_dptG,
               TF1 const &_fTrgtDist_dn_dptG,
               TAxis const &_axisPtG);
+    PtWeights(std::string const &_fID);
 
     TAxis const &GetAxisPtG() const { return axisPtG; }
     TF1 &GetTF1TrgtDist_dn_dptG() const { return fTrgtDist_dn_dptG; }

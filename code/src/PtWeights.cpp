@@ -27,15 +27,35 @@ PtWeights::PtWeights(std::string const &_id,
     fTrgtDist_dn_dptG.SetRange(axisPtG.GetXmin(), axisPtG.GetXmax());
 
     printf("PtWeights::PtWeights(): created instance:\n"
-                "\tid: %s\n"
-                "\tbComputeInInvariantForm: %d\n"
-                "\thMCGen_dn_dptG: %s\n"
-                "\tfTrgtDist_dn_dptG: %s\n"
-                "\taxisPtG: nBins %d, xmin %f, xmax %f\n",
-              id.data(), bComputeInInvariantForm, 
-              hMCGen_dn_dptG.GetName(), fTrgtDist_dn_dptG.GetName(), 
-              axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
+           "\tid: %s\n"
+           "\tbComputeInInvariantForm: %d\n"
+           "\thMCGen_dn_dptG: %s\n"
+           "\tfTrgtDist_dn_dptG: %s\n"
+           "\taxisPtG: nBins %d, xmin %f, xmax %f\n",
+           id.data(), bComputeInInvariantForm,
+           hMCGen_dn_dptG.GetName(), fTrgtDist_dn_dptG.GetName(),
+           axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
 }
+
+    PtWeights::PtWeights(std::string const &_fID)
+    : id(_fID + "_dummyConstructor"),
+      bComputeInInvariantForm(false),
+      hMCGen_dn_dptG(* new TH1D((id + "_hMCGen_dn_dptG").data(), "dummy", 1, 0., 1.)),
+      fTrgtDist_dn_dptG(* new TF1((id + "_fTrgtDist_dn_dptG").data(), "1.", 0., 1.)),
+      axisPtG(1, 0., 1.),
+      fTF1((* new TF1((id + "fTF1").data(), "1.", 0., 1.)))
+    {
+        printf("PtWeights::PtWeights(): created dummy instance:\n"
+           "\tid: %s\n"
+           "\tbComputeInInvariantForm: %d\n"
+           "\thMCGen_dn_dptG: %s\n"
+           "\tfTrgtDist_dn_dptG: %s\n"
+           "\taxisPtG: nBins %d, xmin %f, xmax %f\n",
+           id.data(), bComputeInInvariantForm,
+           hMCGen_dn_dptG.GetName(), fTrgtDist_dn_dptG.GetName(),
+           axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
+
+    }
 
 double PtWeights::GetPtWeight(double *ptG, double *) const
 {
