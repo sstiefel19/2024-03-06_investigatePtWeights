@@ -1,7 +1,10 @@
 #include "dN_dptR.h"
 
+
 #include "TF1.h"
 #include "TF2.h"
+
+#include "dN_dptR_integrand.h"
 #include "PtWeights.h"
 
 dN_dptR::dN_dptR(std::string const &_id,
