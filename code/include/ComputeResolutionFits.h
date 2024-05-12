@@ -22,13 +22,14 @@ public:
                           bool theDrawAllFitsOverlayed,
                           bool thePlotSingles);
 
-    utils_fits::TPairFitsWAxis &Compute(TH2 &theH2Resolution,
-                            int binStart,
-                            int ptBinMax,
-                            int nR,
-                            std::string const &fnameSave,
-                            bool theDrawAllFitsOverlayed = true,
-                            bool thePlotSingles = false);
+    utils_fits::TPairFitsWAxis &
+    Compute(TH2 &theH2Resolution,
+            int binStart,
+            int ptBinMax,
+            int nR,
+            std::string const &fnameSave,
+            bool theDrawAllFitsOverlayed = true,
+            bool thePlotSingles = false);
 
     bool GetFitsFromFile(TFile &theFile,
                          int binStart,
@@ -36,6 +37,7 @@ public:
                          utils_fits::TPairFitsWAxis &thePair);
 
 private:
+    TH2 &h2Resolution;
     int binStart;
     int ptBinMax;
     int nR;

@@ -16,14 +16,17 @@ ComputeResolutionFits::ComputeResolutionFits(TH2 &theH2Resolution,
                                              std::string const &theFnameSave,
                                              bool theDrawAllFitsOverlayed,
                                              bool thePlotSingles)
-    : binStart(theBinStart),
+    : h2Resolution(theH2Resolution),
+      binStart(theBinStart),
       ptBinMax(thePtBinMax),
       nR(theNR),
       fnameSave(theFnameSave),
       theDrawAllFitsOverlayed(theDrawAllFitsOverlayed),
       thePlotSingles(thePlotSingles)
 {
-    ComputeResolutionFits(theH2Resolution, binStart, ptBinMax, nR, fnameSave, theDrawAllFitsOverlayed, thePlotSingles);
+    printf("ComputeResolutionFits::ComputeResolutionFits(): created instance:\n"
+          "\th2Resolution: %s binStart: %d, ptBinMax: %d\n",
+          h2Resolution.GetName(), binStart, ptBinMax);
 }
 
 utils_fits::TPairFitsWAxis &
@@ -35,7 +38,9 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
                                bool theDrawAllFitsOverlayed /* = true */,
                                bool thePlotSingles /* = false */)
 
-{
+{   
+    printf("ComputeResolutionFits::Compute(): binStart: %d, ptBinMax: %d\n", binStart, ptBinMax);
+
     std::vector<TH1 *> &vHists_ptG_i_dn_dr = *new std::vector<TH1 *>(ptBinMax + 1, static_cast<TH1 *>(nullptr));
     std::vector<TF1 *> &vFits_ptG_i_dp_dr = *new std::vector<TF1 *>(ptBinMax + 1, static_cast<TF1 *>(nullptr));
 
@@ -49,6 +54,8 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
     theH2Resolution.Draw("colz");
     gPad->SetLogz();
     saveCanvasAs(cR1);
+
+    std::cout << "ComputeResolutionFits::Compute(): binStart: " << binStart << ", ptBinMax: " << ptBinMax << " " << fnameSave.data() << std::endl;
 
     // first see if there is a file
     bool lFile = fnameSave.size();

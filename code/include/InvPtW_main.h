@@ -48,15 +48,14 @@ public:
                          bool &theResultIsInvariant_out);
 
     // detector parametrizations
-    utils_fits::TPairFitsWAxis FitDetector(const std::string &theFnameInputEffiFit,
+    utils_fits::TPairFitsWAxis &FitDetector(const std::string &theFnameInputEffiFit,
                                const std::string &theFnameResFits,
                                TH2 &theH2Resolution,
                                int thePtBinStart,
                                int thePtBinMax,
                                int theNRebin_r,
                                bool theDrawAllFitsOverlayed,
-                               bool thePlotSingles,
-                               TF1 *&theEffiAtAll_dp_dptG_out);
+                               bool thePlotSingles);
     
     PtWeights &SetupWeightsInstance(std::string const &theID,
                                     bool theComputedInInvariantForm,
@@ -82,4 +81,7 @@ private:
     std::string fnameWeightsFile;
     GCo gAS;
     TH2F h2Resolution;
+
+    TF1 *lEffiAtAll_dp_dptG;
+
 };

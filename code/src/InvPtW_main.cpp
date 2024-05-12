@@ -45,6 +45,7 @@ TF1 &InvPtW_main::GetMesonEfficiency(std::string fname, Double_t theXmax /*= 10.
                &leg, "", "l", true /* theDrawLegAlready */);
     drawAndAdd(fEffi, "same", kBlue,
                &leg, "", "l");
+    std::cout << "fEffi: " << fEffi.GetTitle() << std::endl;
     return fEffi;
 }
 
@@ -92,34 +93,45 @@ TF1 &InvPtW_main::FitGenDistHisto(std::string const &theResultNameInfo,
 }
 
 // detector parametrizations
-utils_fits::TPairFitsWAxis InvPtW_main::FitDetector(const std::string &theFnameInputEffiFit,
-                                                    const std::string &theFnameResFits,
-                                                    TH2 &theH2Resolution,
-                                                    int thePtBinStart,
-                                                    int thePtBinMax,
-                                                    int theNRebin_r,
-                                                    bool theDrawAllFitsOverlayed,
-                                                    bool thePlotSingles,
-                                                    TF1 *&theEffiAtAll_dp_dptG_out)
+utils_fits::TPairFitsWAxis &InvPtW_main::FitDetector(const std::string &theFnameInputEffiFit,
+                                                     const std::string &theFnameResFits,
+                                                     TH2 &theH2Resolution,
+                                                     int thePtBinStart,
+                                                     int thePtBinMax,
+                                                     int theNRebin_r,
+                                                     bool theDrawAllFitsOverlayed,
+                                                     bool thePlotSingles)
 {
-    theEffiAtAll_dp_dptG_out = &GetMesonEfficiency(theFnameInputEffiFit);
+    lEffiAtAll_dp_dptG = &GetMesonEfficiency(theFnameInputEffiFit);
+    if (!lEffiAtAll_dp_dptG)
+    {
+        printf("investigatePtWeights_wResolutionEffects::FitDetector():\n\t"
+               "ERROR: lEffiAtAll_dp_dptG is nullptr!\n"
+               "\tReturning dummy TPairFitsWAxis  NOT.\n");
+    }
+    std::cout << "ger2\n";
 
     // 2) create resolution parametrizations
-    ComputeResolutionFits lCRF(theH2Resolution,
-                               thePtBinStart,
-                               thePtBinMax,
-                               theNRebin_r,
-                               theFnameResFits,
-                               theDrawAllFitsOverlayed,
-                               thePlotSingles);
-
-    return lCRF.Compute(theH2Resolution,
-                        thePtBinStart,
-                        thePtBinMax,
-                        theNRebin_r,
-                        theFnameResFits,
-                        true /*drawAllFitsOverlayed*/,
-                        false /*plotSingles*/);
+    ComputeResolutionFits &lCRF = *new ComputeResolutionFits(
+        theH2Resolution,
+        thePtBinStart,
+        thePtBinMax,
+        theNRebin_r,
+        theFnameResFits,
+        theDrawAllFitsOverlayed,
+        thePlotSingles);
+    std::cout << "ger2\n";
+    std::cout << "ger4\n";
+    
+    utils_fits::TPairFitsWAxis &lResult = lCRF.Compute(theH2Resolution,
+                                                       thePtBinStart,
+                                                       thePtBinMax,
+                                                       theNRebin_r,
+                                                       theFnameResFits,
+                                                       true /*drawAllFitsOverlayed*/,
+                                                       false /*plotSingles*/);
+    std::cout << "ger3\n";
+    return lResult;
 }
 
 InvPtW_main::InvPtW_main(std::string const &theMeson,
@@ -137,7 +149,7 @@ InvPtW_main::InvPtW_main(std::string const &theMeson,
       centAS(theCentAS),
       fnameAS(theFnameAS),
       lFnameInputEffiFit(theFnameInputEffiFit),
-      lFnameResFits(Form("%s_resolutionFits_%d-%d.root",
+      lFnameResFits(Form("input_root/%s_resolutionFits_%d-%d.root",
                          centAS.data(),
                          ptBinStart,
                          ptBinMax)),
@@ -147,7 +159,8 @@ InvPtW_main::InvPtW_main(std::string const &theMeson,
       lGenDistTH1IsInvariant(theGenDistTH1IsInvariant),
       lMultiplyResultTF1ByX(theMultiplyResultTF1ByX),
       gAS({fnameAS, "GammaConvV1_997/", centAS, "_0d200009ab770c00amd0404000_0152101500000000"}),
-      h2Resolution(*(TH2F *)gAS.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt"))
+      h2Resolution(*(TH2F *)gAS.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt")),
+      lEffiAtAll_dp_dptG(nullptr)
 {
     printf("invPtWeights_class::invPtWeights_class(): created instance for %s %s %s %s %s %s %s %d %d %d %d\n",
            meson.data(),
@@ -181,7 +194,6 @@ PtWeights &InvPtW_main::SetupWeightsInstance(std::string const &theID,
 
 int InvPtW_main::Main()
 {
-    TF1 *lEffiAtAll_dp_dptG = nullptr;
     utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis = FitDetector(lFnameInputEffiFit,
                                                                            lFnameResFits,
                                                                            h2Resolution,
@@ -189,8 +201,7 @@ int InvPtW_main::Main()
                                                                            ptBinMax,
                                                                            4 /*nR*/,
                                                                            true /*theDrawAllFitsOverlayed*/,
-                                                                           false /*thePlotSingles*/,
-                                                                           lEffiAtAll_dp_dptG);
+                                                                           false /*thePlotSingles*/);
 
     /*
         more accurate way to get the genDist:
