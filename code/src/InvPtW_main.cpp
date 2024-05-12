@@ -107,7 +107,8 @@ PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
 }
 
 int InvPtW_main::Main()
-{
+{   
+    // 0) fit overall efficiency
     // this call also initialized aAxisPtG
     int lNRebin_r = 4;
     utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis =
@@ -120,11 +121,13 @@ int InvPtW_main::Main()
         h_inv -> h -> f
         TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
     */
+
+   // 1) create PtWeights instance
     bool lComputeInInvariantForm = true;
     PtWeights &lPtWeights = CreatePtWeightsInstance("lPtWeights",
                                                     lComputeInInvariantForm);
 
-    // 4) fit the genDist
+    // 2) fit the genDist
     bool lGenDistTF1IsInvariant_output = false;
     TF1 &lGenDistTF1_dn_dptG_AS = FitGenDistHisto("auto",
                                                   *cloneTH1(lPtWeights.GetTH1MCGen_dn_dptG()), // not sure if clone is necessary
@@ -132,7 +135,7 @@ int InvPtW_main::Main()
                                                   true /*theMultiplyResultTF1ByX*/,
                                                   lGenDistTF1IsInvariant_output /* theResultIsInvariant_out */);
 
-    // 5 create MCEffi instances
+    // 3 create MCEffi instances
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
     auto &lMCEffi_AS = *new MCEffi_wRes("lMCEffi_AS",                 //
@@ -142,12 +145,19 @@ int InvPtW_main::Main()
                                         lAxisPtR,                     // _axisPtR
                                         &lPtWeights);
 
-    TF1 &fGenData_dn_dptG = lPtWeights.GetTF1TrgtDist_dn_dptG();
     auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
-                                       fGenData_dn_dptG,             // _fGenDist_dn_dptG
+                                       *fTargetGenData_dn_dptG,             // _fGenDist_dn_dptG
                                        *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                        lAxisPtR);
+
+    /*MCEffi_wRes(std::string const &_id,
+                TF1 &_fGenDist_dn_dptG,
+                TF1 &_fEffi_dp_dptG,
+                utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+                TAxis &_axisPtR,
+                PtWeights *_tPtWeights = nullptr);
+    */
 
     // 7) plot results
     lMCEffi_AS.SampleMeasuredEffi_NW_2();
