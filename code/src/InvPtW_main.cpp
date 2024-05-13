@@ -92,7 +92,7 @@ InvPtW_main::InvPtW_main(std::string const &theID,
 // ===================== public member functions =================================
 int InvPtW_main::Main(bool theUseInvariantForm)
 {
-    // 0) fit overall efficiency
+    // 1) fit overall efficiency
     // this call also initialized aAxisPtG
     int lNRebin_r = 4;
     utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis =
@@ -104,12 +104,8 @@ int InvPtW_main::Main(bool theUseInvariantForm)
    h_inv -> h -> f
    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
 
-    // 1) create PtWeights instance
-    PtWeights &lPtWeights_ = CreatePtWeightsInstance(theUseInvariantForm ? "lPtWeights_inv"
-                                                                         : "lPtWeights_special",
-                                                     theUseInvariantForm);
-
     // 2) fit the genDist
+    // todo: remove next variable, nowhere needed
     bool lGenDistTF1IsInvariant_output = false;
     TF1 &lGenDistTF1_dn_dptG_AS = FitGenDistHisto("auto",
                                                   theUseInvariantForm ? hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG*/ // not sure if clone is necessary
@@ -117,6 +113,11 @@ int InvPtW_main::Main(bool theUseInvariantForm)
                                                   theUseInvariantForm /*theTH1IsInvariant*/,
                                                   theUseInvariantForm /*theMultiplyResultTF1ByX*/,
                                                   lGenDistTF1IsInvariant_output /* theResultIsInvariant_out */);
+
+    // 3) create PtWeights instance
+    PtWeights &lPtWeights_ = CreatePtWeightsInstance(theUseInvariantForm ? "lPtWeights_inv"
+                                                                         : "lPtWeights_special",
+                                                     theUseInvariantForm);
 
     // 3 create MCEffi instances
     // TAxis &axisPtR = lPtGaxis;
@@ -134,15 +135,7 @@ int InvPtW_main::Main(bool theUseInvariantForm)
                                   lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
                                   lAxisPtR);
 
-    /*MCEffi(std::string const &_id,
-                TF1 &_fGenDist_dn_dptG,
-                TF1 &_fEffi_dp_dptG,
-                utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-                TAxis &_axisPtR,
-                PtWeights *_tPtWeights = nullptr);
-    */
-
-    // 7) plot results
+    // 4) plot results
     lMCEffi_AS.SampleMeasuredEffi_NW_2();
     lMCEffi_AS.PlotAll();
     lMCEffi_D.PlotAll();
@@ -162,25 +155,14 @@ PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
         return *new PtWeights(theID);
     }
 
-    /*std::string const &_fID,
-              bool _bComputeInInvariantForm,
-              TH1 const &_hMCGen_dn_dptG,
-              TF1 const &_fTrgtDist_dn_dptG,
-              TAxis const &_axisPtG);*/
-
-    return theComputeInInvariantForm ? *new PtWeights(
-                                           theID,
-                                           theComputeInInvariantForm /*_bComputeInInvariantForm*/,
-                                           hGenDist_dn_dptG_inv /*_hMCGen_dn_dptG*/,
-                                           fTargetGenData_dn_dptG_inv /*_fTrgtDist_dn_dptG*/,
-                                           *aAxisPtG)
-
-                                     : *new PtWeights(
-                                           theID,
-                                           theComputeInInvariantForm,
-                                           hGenDist_dn_dptG,
-                                           fTargetGenData_dn_dptG,
-                                           *aAxisPtG);
+    return *new PtWeights(
+        theID,
+        theComputeInInvariantForm,
+        theComputeInInvariantForm ? hGenDist_dn_dptG_inv
+                                  : hGenDist_dn_dptG,
+        theComputeInInvariantForm ? fTargetGenData_dn_dptG
+                                  : fTargetGenData_dn_dptG_inv,
+        *aAxisPtG);
 }
 
 // detector parametrizations
