@@ -33,6 +33,8 @@ public:
                 std::string const &theMeson,
                 std::string const &theCent,
                 std::string const &theCentAS,
+                std::string const &theMainDirAS,
+                std::string const &thePhotMesCutNo,
                 std::string const &theFnameAS);
 
     int Main(bool theUseInvariantForm);

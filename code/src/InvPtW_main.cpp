@@ -33,6 +33,8 @@ InvPtW_main::InvPtW_main(std::string const &theID,
                          std::string const &theMeson,
                          std::string const &theCent,
                          std::string const &theCentAS,
+                         std::string const &theMainDirAS,
+                         std::string const &thePhotMesCutNo,
                          std::string const &theFnameAS)
     : id(theID),
       sFnameInputEffiFit(theFnameInputEffiFit),
@@ -42,21 +44,22 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       sCentAS(theCentAS),
       sFnameAS(theFnameAS),
       gConvV1_AS(GCo(sFnameAS,
-                     "GammaConvV1_997/", sCentAS,
-                     "_0d200009ab770c00amd0404000_0152101500000000")),
+                     theMainDirAS,
+                     sCentAS,
+                     thePhotMesCutNo)),
 
       // derive
       sFnameResFits(Form("input_root/%s_resolutionFits_%d-%d.root",
                          sCentAS.data(),
                          iPtBinStart,
                          iPtBinMax)),
-      
+
       h2Resolution(*(TH2F *)gConvV1_AS.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt")),
-      
+
       fTargetGenData_dn_dptG_inv(*(TF1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
           sMeson + "_Data_5TeV_" + sCent.substr(0, 6))),
-      
+
       hGenDist_dn_dptG_inv(*(TH1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
           sMeson + "_LHC24a1_5TeV_" + sCentAS)),
