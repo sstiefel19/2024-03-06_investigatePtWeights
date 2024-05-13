@@ -11,11 +11,11 @@
 // MCEffi
 // public:
 MCEffi::MCEffi(std::string const &_id,
-                         TF1 &_fGenDist_dn_dptG,
-                         TF1 &_fEffi_dp_dptG,
-                         utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-                         TAxis &_axisPtR,
-                         PtWeights *_tPtWeights /*= nullptr*/)
+               TF1 &_fGenDist_dn_dptG,
+               TF1 &_fEffi_dp_dptG,
+               utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
+               TAxis &_axisPtR,
+               PtWeights *_tPtWeights /*= nullptr*/)
     : id(_id),
       fListAllInit(),
       fGenDist_dn_dptG(_fGenDist_dn_dptG),
@@ -120,9 +120,9 @@ void MCEffi::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, "")*/)
 // }
 
 TH1 &MCEffi::SampleMeasuredEffi_generic(std::string const &theName,
-                                             TF1 &theNumF,
-                                             TF1 &theDenF,
-                                             TAxis const &theAxis) const
+                                        TF1 &theNumF,
+                                        TF1 &theDenF,
+                                        TAxis const &theAxis) const
 {
     TH1 &hNum = *getSampledH(theNumF, theAxis);
     TH1 &hDen = *getSampledH(theDenF, theAxis);

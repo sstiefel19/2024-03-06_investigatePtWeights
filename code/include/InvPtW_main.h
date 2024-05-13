@@ -1,6 +1,7 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
 #pragma once
 #include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
 
@@ -34,7 +35,13 @@ public:
                 std::string const &theCentAS,
                 std::string const &theFnameAS);
 
-    TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
+    int Main(bool theUseInvariantForm);
+
+private:
+    // detector parametrizations
+    utils_fits::TPairFitsWAxis &FitDetector(int theNRebin_r,
+                                            bool theDrawAllFitsOverlayed,
+                                            bool thePlotSingles);
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitGenDistHisto(std::string const &theResultNameInfo,
@@ -44,13 +51,9 @@ public:
                          bool &theResultIsInvariant_out);
 
     // detector parametrizations
-    utils_fits::TPairFitsWAxis &FitDetector(int theNRebin_r,
-                                            bool theDrawAllFitsOverlayed,
-                                            bool thePlotSingles);
+    TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
 
-    int Main(bool theUseInvariantForm);
-
-private:
+    // pt weights related
     PtWeights &CreatePtWeightsInstance(std::string const &theID,
                                        bool theComputeInInvariantForm);
 
@@ -72,25 +75,24 @@ private:
 
     // ======================= derived properties ==============================
     std::string sFnameResFits;
+    std::string const id;
+    GCo const gConvV1_AS;
 
     // holding detector reponse ptR vs. ptG
-    TH2  *h2Resolution;
+    TH2F h2Resolution;
 
     // defining data and MC distributions, will be extracted from above files
     TH1 &hGenDist_dn_dptG_inv;
     TF1 &fTargetGenData_dn_dptG_inv;
 
     // from input derived information
-    TH1  *hGenDist_dn_dptG;
-    TF1  *fTargetGenData_dn_dptG;
+    TH1D hGenDist_dn_dptG;
+    TF1 fTargetGenData_dn_dptG;
 
     // measured output variables
     TF1 *fEffiAtAll_dp_dptG;
 
     // ======================= helper functions ===============================
     // helper members for accessing GammaConvV1 output files
-    std::string const id;
-    GCo *gConvV1_AS;
     TAxis *aAxisPtG; // gets intialized in FitDetector
-
 };

@@ -69,7 +69,10 @@
 			"unordered_map": "cpp",
 			"unordered_set": "cpp",
 			"variant": "cpp",
-			"vector": "cpp"
+			"vector": "cpp",
+			"start_compile-run_main.C": "cpp",
+			"compileAllLibs_utils.C": "cpp",
+			"compileAllLibs_InvPtW_main.C": "cpp"
 		}
 	}
 }
