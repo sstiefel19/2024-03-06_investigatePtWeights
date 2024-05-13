@@ -18,4 +18,6 @@ void run_InvPtW_main()
         "_0d200009ab770c00amd0404000_0152101500000000");
 
     lInvPtW_main.Main(true /* theUseInvariantForm */);
+
+    lInvPtW_main.Main(false /* theUseInvariantForm */);
 }

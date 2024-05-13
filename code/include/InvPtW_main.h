@@ -46,11 +46,10 @@ private:
                                             bool thePlotSingles);
 
     // set first parameter to "auto" for auto-concatenated name
-    TF1 &FitGenDistHisto(std::string const &theResultNameInfo,
-                         TH1 &theTH1GenDist_dn_dptG,
-                         bool theTH1IsInvariant,
-                         bool theMultiplyResultTF1ByX,
-                         bool &theResultIsInvariant_out);
+    TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
+                                      TH1 &theTH1GenDist_dn_dptG,
+                                      bool theTH1IsInvariant,
+                                      bool theMultiplyResultTF1ByX);
 
     // detector parametrizations
     TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
@@ -85,7 +84,7 @@ private:
     // defining data and MC distributions, will be extracted from above files
     TF1 &fTargetGenData_dn_dptG_inv;
     TH1 &hGenDist_dn_dptG_inv;
-    
+
     // from input derived information
     TH1D hGenDist_dn_dptG;
     TF1 fTargetGenData_dn_dptG;

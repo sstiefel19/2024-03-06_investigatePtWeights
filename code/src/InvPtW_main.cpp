@@ -90,7 +90,7 @@ InvPtW_main::InvPtW_main(std::string const &theID,
 }
 
 // ===================== public member functions =================================
-int InvPtW_main::Main(bool theUseInvariantForm)
+int InvPtW_main::Main(bool theCalcPtWInInvForm)
 {
     // 1) fit overall efficiency
     // this call also initialized aAxisPtG
@@ -105,31 +105,27 @@ int InvPtW_main::Main(bool theUseInvariantForm)
    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
 
     // 2) fit the genDist
-    // todo: remove next variable, nowhere needed
-    bool lGenDistTF1IsInvariant_output = false;
-    TF1 &lGenDistTF1_dn_dptG_AS = FitGenDistHisto("auto",
-                                                  theUseInvariantForm ? hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG*/ // not sure if clone is necessary
-                                                                      : hGenDist_dn_dptG,
-                                                  theUseInvariantForm /*theTH1IsInvariant*/,
-                                                  theUseInvariantForm /*theMultiplyResultTF1ByX*/,
-                                                  lGenDistTF1IsInvariant_output /* theResultIsInvariant_out */);
+    TF1 &lGenDistTF1_dn_dptG_AS =
+        FitMCGeneratedParticlesHisto("auto",
+                                     theCalcPtWInInvForm ? hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG*/
+                                                         : hGenDist_dn_dptG,
+                                     theCalcPtWInInvForm /*theTH1IsInvariant*/,
+                                     theCalcPtWInInvForm /*theMultiplyResultTF1ByX*/);
 
     // 3) create PtWeights instance
-    PtWeights &lPtWeights_ = CreatePtWeightsInstance(theUseInvariantForm ? "lPtWeights_inv"
-                                                                         : "lPtWeights_special",
-                                                     theUseInvariantForm);
+    PtWeights &lPtWeights = CreatePtWeightsInstance(id + "_lPtWeights",
+                                                     theCalcPtWInInvForm);
 
     // 3 create MCEffi instances
-    // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
-    auto &lMCEffi_AS = *new MCEffi("lMCEffi_AS",                 //
-                                   lGenDistTF1_dn_dptG_AS,       // _fGenDist_dn_dptG
-                                   *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
-                                   lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
-                                   lAxisPtR,                     // _axisPtR
-                                   &lPtWeights_);
+    auto &lMCEffi_AS = *new MCEffi(id + "_lMCEffi_AS_" + lPtWeights.GetID(), //
+                                   lGenDistTF1_dn_dptG_AS,                    // _fGenDist_dn_dptG
+                                   *fEffiAtAll_dp_dptG,                       // _fEffi_dp_dptG
+                                   lPair_vFits_ptG_i_dp_dr_Axis,              // _vFits_ptG_i_dp_dr_wAxis
+                                   lAxisPtR,                                  // _axisPtR
+                                   &lPtWeights);
 
-    auto &lMCEffi_D = *new MCEffi("lMCEffi_D",                  //
+    auto &lMCEffi_D = *new MCEffi(id + "_lMCEffi_D",            //
                                   fTargetGenData_dn_dptG,       // _fGenDist_dn_dptG
                                   *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                   lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
@@ -147,16 +143,17 @@ int InvPtW_main::Main(bool theUseInvariantForm)
 PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
                                                 bool theComputeInInvariantForm)
 {
+    std::string lFullName(theID + theComputeInInvariantForm ? "_inv" : "_special");
     if (!aAxisPtG)
     {
         printf("investigatePtWeights_wResolutionEffects::createPtWeightsInstance():\n\t"
                "ERROR: aAxisPtG is nullptr!\n"
                "\tReturning dummy PtWeights instance.\n");
-        return *new PtWeights(theID);
+        return *new PtWeights(lFullName);
     }
 
     return *new PtWeights(
-        theID,
+        lFullName,
         theComputeInInvariantForm,
         theComputeInInvariantForm ? hGenDist_dn_dptG_inv
                                   : hGenDist_dn_dptG,
@@ -200,14 +197,13 @@ utils_fits::TPairFitsWAxis &InvPtW_main::FitDetector(int theNRebin_r,
 }
 
 // set first parameter to "auto" for auto-concatenated name
-TF1 &InvPtW_main::FitGenDistHisto(std::string const &theResultNameInfo,
-                                  TH1 &theTH1GenDist_dn_dptG,
-                                  bool theTH1IsInvariant,
-                                  bool theMultiplyResultTF1ByX,
-                                  bool &theResultIsInvariant_out)
+TF1 &InvPtW_main::FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
+                                               TH1 &theTH1GenDist_dn_dptG,
+                                               bool theTH1IsInvariant,
+                                               bool theMultiplyResultTF1ByX)
 {
     // on top for readability
-    theResultIsInvariant_out = theTH1IsInvariant && !theMultiplyResultTF1ByX;
+    bool lResultIsInvariant_out = theTH1IsInvariant && !theMultiplyResultTF1ByX;
 
     // must not be empty
     if (!theResultNameInfo.size())
@@ -224,7 +220,7 @@ TF1 &InvPtW_main::FitGenDistHisto(std::string const &theResultNameInfo,
         theResultNameInfo != "auto" ? theResultNameInfo
                                     : Form("createGenDistFit_dn_dptG_from_%s_%s",
                                            theTH1GenDist_dn_dptG.GetName(),
-                                           theResultIsInvariant_out ? "_inv" : ""));
+                                           lResultIsInvariant_out ? "_inv" : ""));
 
     // create result TF1
     TF1 &lTF1GenDist_dn_dptG = *new TF1(lResultFullName.data(),
