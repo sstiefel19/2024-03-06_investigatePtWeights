@@ -9,10 +9,10 @@
 class TLegend;
 
 
-class MCEffi_wRes
+class MCEffi
 {
 public:
-    MCEffi_wRes(std::string const &_id,
+    MCEffi(std::string const &_id,
                 TF1 &_fGenDist_dn_dptG,
                 TF1 &_fEffi_dp_dptG,
                 utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
@@ -20,23 +20,16 @@ public:
                 PtWeights *_tPtWeights = nullptr);
                 
     std::string const &GetID() const { return id; }
-
-    // TF1 &MeasuredEffiTF1_NW(Color_t theLineColor = kBlue);
-    // TF1 *MeasuredEffiTF1_WW(Color_t theLineColor = kRed);
-
-    // integrate TF1s
-    // TH1 &SampleMeasuredEffi_NW(Color_t theLineColor = kBlue);
-    // TH1 *SampleMeasuredEffi_WW(Color_t theLineColor = kRed);
+    void PlotAll(TLegend *theLeg = nullptr);
 
     // integrate TF2
     TH1 &SampleMeasuredEffi_NW_2(Color_t theLineColor = kBlue);
     TH1 *SampleMeasuredEffi_WW_2(Color_t theLineColor = kBlue);
 
-    void PlotAll(TLegend *theLeg = nullptr);
-
     // public data members
-    // todo make const ?!
-    TF1 &fGenDist_dn_dptG; // the assumed distribution of generated particles in MC (will be flat for AS MCs )
+    /* the assumed distribution of generated particles in MC
+       (will be flat for AS MCs ) */
+    TF1 &fGenDist_dn_dptG; // todo make const ?!
     dN_dptR tdN_dptR_NW;
 
 private:
@@ -53,7 +46,6 @@ private:
                                     TF1  &theNumF,
                                     TF1  &theDenF,
                                     TAxis const &theAxis) const;
-
 
     TF1 *fGenDist_dn_dptG_WW;
     TH1 *hMCGen_NW;

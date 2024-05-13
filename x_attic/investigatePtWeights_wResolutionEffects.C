@@ -185,7 +185,7 @@ void investigatePtWeights_wResolutionEffects()
     // 5 create MCEffi instances
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
-    auto &lMCEffi_AS = *new MCEffi_wRes("lMCEffi_AS",                 //
+    auto &lMCEffi_AS = *new MCEffi("lMCEffi_AS",                 //
                                         lGenDistTF1_dn_dptG_AS,       // _fGenDist_dn_dptG
                                         fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
                                         lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
@@ -193,7 +193,7 @@ void investigatePtWeights_wResolutionEffects()
                                         &lPtWeights);
 
     TF1 &fGenData_dn_dptG = lPtWeights.GetTF1TrgtDist_dn_dptG();
-    auto &lMCEffi_D = *new MCEffi_wRes("lMCEffi_D",                  //
+    auto &lMCEffi_D = *new MCEffi("lMCEffi_D",                  //
                                        fGenData_dn_dptG,             // _fGenDist_dn_dptG
                                        fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
                                        lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis

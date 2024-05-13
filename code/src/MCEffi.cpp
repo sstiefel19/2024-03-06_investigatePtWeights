@@ -8,9 +8,9 @@
 #include "TF2.h"
 #include "TLegend.h"
 
-// MCEffi_wRes
+// MCEffi
 // public:
-MCEffi_wRes::MCEffi_wRes(std::string const &_id,
+MCEffi::MCEffi(std::string const &_id,
                          TF1 &_fGenDist_dn_dptG,
                          TF1 &_fEffi_dp_dptG,
                          utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
@@ -48,10 +48,10 @@ MCEffi_wRes::MCEffi_wRes(std::string const &_id,
         fGenDist_dn_dptG.SetLineColor(kBlack);
     fListAllInit.Add(&fGenDist_dn_dptG);
 
-    printf("MCEffi_wRes::MCEffi_wRes(): created instance %s %s ptWeights.\n",
+    printf("MCEffi::MCEffi(): created instance %s %s ptWeights.\n",
            id.data(),
            tPtWeights ? "with" : "without");
-    printf("MCEffi_wRes::MCEffi_wRes(): id: %s, axisPtR: xmin: %f, xmax: %f, nBins: %d\ntdN_dptR_NW: %s\n",
+    printf("MCEffi::MCEffi(): id: %s, axisPtR: xmin: %f, xmax: %f, nBins: %d\ntdN_dptR_NW: %s\n",
            id.data(),
            axisPtR.GetXmin(),
            axisPtR.GetXmax(),
@@ -63,14 +63,14 @@ MCEffi_wRes::MCEffi_wRes(std::string const &_id,
         fListAllInit.Add(fGenDist_dn_dptG_WW);
         tPtWeights->GetTF1().SetLineColor(kBlue);
         fListAllInit.Add(&tPtWeights->GetTF1());
-        printf("MCEffi_wRes::MCEffi_wRes(): id: %s, tdN_dptR_WW: %s, tPtWeights: %s\n",
+        printf("MCEffi::MCEffi(): id: %s, tdN_dptR_WW: %s, tPtWeights: %s\n",
                id.data(),
                tdN_dptR_WW->GetID().data(),
                tPtWeights->GetID().data());
     }
 }
 
-void MCEffi_wRes::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, "")*/)
+void MCEffi::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, "")*/)
 {
     TCanvas *c0 = new TCanvas((id + "_PlotAll").data(), (id + "_PlotAll").data(), 2000, 1000);
     TH2 *hd20 = new TH2F((id + "_PlotAll_hd").data(), ";pT (GeV);various", 1, 0., 10., 1, 1e-5, 1e6);
@@ -93,7 +93,7 @@ void MCEffi_wRes::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, ""
     saveCanvasAs(*c0);
 }
 
-// TF1 &MCEffi_wRes::MeasuredEffiTF1_NW(Color_t theLineColor /*= kBlue*/)
+// TF1 &MCEffi::MeasuredEffiTF1_NW(Color_t theLineColor /*= kBlue*/)
 // {
 //     auto &f = *getTF1Division(id + "_GetMeasuredEffiTF1_NW",
 //                               &tdN_dptR_NW.GetTF1(),
@@ -103,7 +103,7 @@ void MCEffi_wRes::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, ""
 //     return f;
 // }
 
-// TF1 *MCEffi_wRes::MeasuredEffiTF1_WW(Color_t theLineColor /*= kRed*/)
+// TF1 *MCEffi::MeasuredEffiTF1_WW(Color_t theLineColor /*= kRed*/)
 // {
 //     if (!(tdN_dptR_WW && fGenDist_dn_dptG_WW))
 //     {
@@ -119,7 +119,7 @@ void MCEffi_wRes::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, ""
 //     return f;
 // }
 
-TH1 &MCEffi_wRes::SampleMeasuredEffi_generic(std::string const &theName,
+TH1 &MCEffi::SampleMeasuredEffi_generic(std::string const &theName,
                                              TF1 &theNumF,
                                              TF1 &theDenF,
                                              TAxis const &theAxis) const
@@ -132,7 +132,7 @@ TH1 &MCEffi_wRes::SampleMeasuredEffi_generic(std::string const &theName,
     return hRatio;
 }
 
-// TH1 &MCEffi_wRes::SampleMeasuredEffi_NW(Color_t theLineColor /*= kBlue*/)
+// TH1 &MCEffi::SampleMeasuredEffi_NW(Color_t theLineColor /*= kBlue*/)
 // {
 //     hEffiRec_NW = &SampleMeasuredEffi_generic(id + "_hEffiRec_NW",
 //                                               tdN_dptR_NW.GetTF1(),
@@ -143,11 +143,11 @@ TH1 &MCEffi_wRes::SampleMeasuredEffi_generic(std::string const &theName,
 //     return *hEffiRec_NW;
 // }
 
-// TH1 *MCEffi_wRes::SampleMeasuredEffi_WW(Color_t theLineColor /*= kRed*/)
+// TH1 *MCEffi::SampleMeasuredEffi_WW(Color_t theLineColor /*= kRed*/)
 // {
 //     if (!(tdN_dptR_WW && fGenDist_dn_dptG_WW))
 //     {
-//         printf("MCEffi_wRes::SampleMeasuredEffi_WW(): Called but no tPtWeights initialized. Instance %s. returning nullptr.\n", id.data());
+//         printf("MCEffi::SampleMeasuredEffi_WW(): Called but no tPtWeights initialized. Instance %s. returning nullptr.\n", id.data());
 //         return nullptr;
 //     }
 //     hMCGen_WW = getSampledH(*fGenDist_dn_dptG_WW, axisPtR);
@@ -159,7 +159,7 @@ TH1 &MCEffi_wRes::SampleMeasuredEffi_generic(std::string const &theName,
 // }
 
 // integrate TF2
-TH1 &MCEffi_wRes::SampleMeasuredEffi_NW_2(Color_t theLineColor /*= kBlue*/)
+TH1 &MCEffi::SampleMeasuredEffi_NW_2(Color_t theLineColor /*= kBlue*/)
 {
 
     if (!hMCGen_NW)
@@ -175,11 +175,11 @@ TH1 &MCEffi_wRes::SampleMeasuredEffi_NW_2(Color_t theLineColor /*= kBlue*/)
     return hEffiRec_NW2;
 }
 
-TH1 *MCEffi_wRes::SampleMeasuredEffi_WW_2(Color_t theLineColor /*= kBlue*/)
+TH1 *MCEffi::SampleMeasuredEffi_WW_2(Color_t theLineColor /*= kBlue*/)
 {
     if (!(tdN_dptR_WW && fGenDist_dn_dptG_WW))
     {
-        printf("MCEffi_wRes::SampleMeasuredEffi_WW_2(): Called but no tPtWeights initialized. Instance %s. returning nullptr.\n", id.data());
+        printf("MCEffi::SampleMeasuredEffi_WW_2(): Called but no tPtWeights initialized. Instance %s. returning nullptr.\n", id.data());
         return nullptr;
     }
     if (!hMCGen_WW)
@@ -195,7 +195,7 @@ TH1 *MCEffi_wRes::SampleMeasuredEffi_WW_2(Color_t theLineColor /*= kBlue*/)
 }
 
 // private:
-TH1 &MCEffi_wRes::SampleTH1FromTF2(TF2 &theTF2_d_dptG_dptR, std::string name /*=""*/)
+TH1 &MCEffi::SampleTH1FromTF2(TF2 &theTF2_d_dptG_dptR, std::string name /*=""*/)
 {
     if (!name.size())
     {

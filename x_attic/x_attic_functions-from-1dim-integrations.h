@@ -1,7 +1,7 @@
 TCanvas &
 compareMeasuredEffis_TF1(std::string const &fID,
-                         MCEffi_wRes &lMCEffi_AS,
-                         MCEffi_wRes &lMCEffi_D)
+                         MCEffi &lMCEffi_AS,
+                         MCEffi &lMCEffi_D)
 {
 
     auto &fEffi_AS_NW = lMCEffi_AS.MeasuredEffiTF1_NW(kBlue);
@@ -52,8 +52,8 @@ compareMeasuredEffis_TF1(std::string const &fID,
 
 TCanvas &
 compareMeasuredEffis_TH1(std::string const &fID,
-                         MCEffi_wRes &lMCEffi_AS,
-                         MCEffi_wRes &lMCEffi_D)
+                         MCEffi &lMCEffi_AS,
+                         MCEffi &lMCEffi_D)
 {
 
     auto &hEffi_AS_NW = lMCEffi_AS.SampleMeasuredEffi_NW(kBlue);
@@ -101,8 +101,8 @@ compareMeasuredEffis_TH1(std::string const &fID,
 
 TCanvas &
 compareMeasuredEffis_TH1_New(std::string const &fID,
-                             MCEffi_wRes &lMCEffi_AS,
-                             MCEffi_wRes &lMCEffi_D)
+                             MCEffi &lMCEffi_AS,
+                             MCEffi &lMCEffi_D)
 {
 
     auto &hEffi_AS_NW = lMCEffi_AS.SampleMeasuredEffi_NW_2(kPink);
