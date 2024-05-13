@@ -30,12 +30,12 @@ public:
     InvPtW_main(std::string const &theID,
                 std::string const &theFnameInputEffiFit,
                 std::string const &theFnameWeightsFile,
+                std::string const &theFnameAS,
                 std::string const &theMeson,
-                std::string const &theCent,
-                std::string const &theCentAS,
+                std::string const &theEvCut,
+                std::string const &theEvCutAS,
                 std::string const &theMainDirAS,
-                std::string const &thePhotMesCutNo,
-                std::string const &theFnameAS);
+                std::string const &thePhotMesCutNo);
 
     int Main(bool theUseInvariantForm);
 
@@ -61,32 +61,31 @@ private:
 
     // ==================== defining & intrinsic properties ====================
     // fnames for detector info and weights
+    std::string const id;
     std::string sFnameInputEffiFit;
     std::string sFnameWeightsFile;
+
+    // input physiscs configs filenames
+    std::string sFnameAS;
+    std::string sMeson;
+    std::string sEvCut;
+    std::string sEvCutAS;
+    GCo const gConvV1_AS;
 
     // for the fitting
     int iPtBinStart = 1;
     int iPtBinMax = 31;
-
-    // input filenames
-    std::string sMeson;
-    std::string sCent;
-    std::string sCentAS;
-    std::string sFnameAS;
-    // std::string fnameAS("/trains/2024-01-26_LHC24a1_QA_noPtW/GCo_997_both.root");
+    std::string sFnameResFits;
 
     // ======================= derived properties ==============================
-    std::string sFnameResFits;
-    std::string const id;
-    GCo const gConvV1_AS;
 
     // holding detector reponse ptR vs. ptG
     TH2F h2Resolution;
 
     // defining data and MC distributions, will be extracted from above files
-    TH1 &hGenDist_dn_dptG_inv;
     TF1 &fTargetGenData_dn_dptG_inv;
-
+    TH1 &hGenDist_dn_dptG_inv;
+    
     // from input derived information
     TH1D hGenDist_dn_dptG;
     TF1 fTargetGenData_dn_dptG;

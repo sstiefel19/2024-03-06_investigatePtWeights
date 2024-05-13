@@ -30,27 +30,27 @@
 InvPtW_main::InvPtW_main(std::string const &theID,
                          std::string const &theFnameInputEffiFit,
                          std::string const &theFnameWeightsFile,
+                         std::string const &theFnameAS,
                          std::string const &theMeson,
-                         std::string const &theCent,
-                         std::string const &theCentAS,
+                         std::string const &theEvCut,
+                         std::string const &theEvCutAS,
                          std::string const &theMainDirAS,
-                         std::string const &thePhotMesCutNo,
-                         std::string const &theFnameAS)
+                         std::string const &thePhotMesCutNo)
     : id(theID),
       sFnameInputEffiFit(theFnameInputEffiFit),
       sFnameWeightsFile(theFnameWeightsFile),
-      sMeson(theMeson),
-      sCent(theCent),
-      sCentAS(theCentAS),
       sFnameAS(theFnameAS),
+      sMeson(theMeson),
+      sEvCut(theEvCut),
+      sEvCutAS(theEvCutAS),
       gConvV1_AS(GCo(sFnameAS,
                      theMainDirAS,
-                     sCentAS,
+                     sEvCutAS,
                      thePhotMesCutNo)),
 
       // derive
       sFnameResFits(Form("input_root/%s_resolutionFits_%d-%d.root",
-                         sCentAS.data(),
+                         sEvCutAS.data(),
                          iPtBinStart,
                          iPtBinMax)),
 
@@ -58,11 +58,11 @@ InvPtW_main::InvPtW_main(std::string const &theID,
 
       fTargetGenData_dn_dptG_inv(*(TF1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
-          sMeson + "_Data_5TeV_" + sCent.substr(0, 6))),
+          sMeson + "_Data_5TeV_" + sEvCut.substr(0, 6))),
 
       hGenDist_dn_dptG_inv(*(TH1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
-          sMeson + "_LHC24a1_5TeV_" + sCentAS)),
+          sMeson + "_LHC24a1_5TeV_" + sEvCutAS)),
 
       // compute
       hGenDist_dn_dptG(*(TH1D *)multiplyTH1ByBinCenters(hGenDist_dn_dptG_inv,
@@ -79,8 +79,8 @@ InvPtW_main::InvPtW_main(std::string const &theID,
     printf("invPtWeights_class::invPtWeights_class(): created instance %s %s %s %s %s %s %s %s %d %d\n",
            id.data(),
            sMeson.data(),
-           sCent.data(),
-           sCentAS.data(),
+           sEvCut.data(),
+           sEvCutAS.data(),
            sFnameAS.data(),
            sFnameInputEffiFit.data(),
            sFnameResFits.data(),

@@ -72,7 +72,13 @@
 			"vector": "cpp",
 			"start_compile-run_main.C": "cpp",
 			"compileAllLibs_utils.C": "cpp",
-			"compileAllLibs_InvPtW_main.C": "cpp"
+			"compileAllLibs_InvPtW_main.C": "cpp",
+			"deque": "cpp",
+			"future": "cpp",
+			"queue": "cpp",
+			"set": "cpp",
+			"stack": "cpp",
+			"valarray": "cpp"
 		}
 	}
 }
