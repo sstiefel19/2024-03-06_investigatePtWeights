@@ -126,14 +126,14 @@ int InvPtW_main::Main(bool theUseInvariantForm)
                     true /* theDrawAllFitsOverlayed */,
                     false /* thePlotSingles */);
 
-     /*more accurate way to get the genDist:
-    h_inv -> h -> f
-    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
+    /*more accurate way to get the genDist:
+   h_inv -> h -> f
+   TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
 
     // 1) create PtWeights instance
-    PtWeights &lPtWeights_ = CreatePtWeightsInstance( theUseInvariantForm ? "lPtWeights_inv"
-                                                                          : "lPtWeights_special",
-        theUseInvariantForm);
+    PtWeights &lPtWeights_ = CreatePtWeightsInstance(theUseInvariantForm ? "lPtWeights_inv"
+                                                                         : "lPtWeights_special",
+                                                     theUseInvariantForm);
 
     // 2) fit the genDist
     bool lGenDistTF1IsInvariant_output = false;
