@@ -105,9 +105,7 @@ int InvPtW_main::Main(bool theCalcPtWInInvForm)
 {
     // 1) fit overall efficiency
     // this call also initialized aAxisPtG
-    int lNRebin_r = 4;
-    utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis =
-        ParametrizeEfficiencies();
+    utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis = ParametrizeEfficiencies();
 
     // 2) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS =
@@ -118,8 +116,7 @@ int InvPtW_main::Main(bool theCalcPtWInInvForm)
                                      theCalcPtWInInvForm /*theMultiplyResultTF1ByX*/);
 
     // 3) create PtWeights instance
-    PtWeights &lPtWeights = CreatePtWeightsInstance(sID + "_lPtWeights",
-                                                    theCalcPtWInInvForm);
+    PtWeights &lPtWeights = CreatePtWeightsInstance(sID + "_lPtWeights", theCalcPtWInInvForm);
 
     // 3 create MCEffi instances
     TAxis lAxisPtR(100, 0., 10.);

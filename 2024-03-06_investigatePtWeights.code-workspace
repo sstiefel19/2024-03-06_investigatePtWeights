@@ -78,7 +78,10 @@
 			"queue": "cpp",
 			"set": "cpp",
 			"stack": "cpp",
-			"valarray": "cpp"
+			"valarray": "cpp",
+			"start_compile_run_main.C": "cpp",
+			"compile_and_run_main.C": "cpp",
+			"both_compile_and_run_main.C": "cpp"
 		}
 	}
 }
