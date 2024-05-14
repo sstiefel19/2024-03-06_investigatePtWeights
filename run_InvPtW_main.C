@@ -22,7 +22,33 @@ void run_InvPtW_main()
         lGCo_AS,
         lNR);
 
-    lInvPtW_main.Main(true /* theUseInvariantForm */);
+    lInvPtW_main.Main();
 
-    lInvPtW_main.Main(false /* theUseInvariantForm */);
+    // compare pt weights invariant and special
+    /*
+        what do I wanna know?
+        in data it holds:
+            - Ngen IS correct (by definition)
+            - Nrec_i = effi^reco_i * Ngen
+            -> Ngen_i = Nrec_i / effi^reco_i          (A)
+
+        overall goal: measure effi^reco_i in MC such  (A) holds
+
+        problem: Nrec_i depends on pT-shape of Ngen because feed-ins != feed-outs
+        solution: use pt weights to simulate Ngen shape of data in MC
+
+        goals:
+        1) measure effi^reco_i in MC
+            a) with Ngen as in data                                     - x
+            b) with Ngen flat as in AS MC without pt-weights            - x
+            c) with Ngen flat as in AS MC and with pt-weights_inv       - x
+            d) with Ngen flat as in AS MC and with pt-weights_special   - y
+
+            * x: Main(true), y: Main(false)
+    */
+
+    // notes:
+    /*
+        lInvPtW_main: constructor sets all information such that an instance can be called with both weights options
+    */
 }

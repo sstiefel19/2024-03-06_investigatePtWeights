@@ -24,6 +24,8 @@
 #include "TCanvas.h"
 #include "TEfficiency.h"
 
+class MCEffi;
+
 class InvPtW_main
 {
 public:
@@ -35,17 +37,16 @@ public:
                 GCo const &theGCo_h2Resolution,
                 int theNR);
 
-    int Main(bool theUseInvariantForm);
+    int Initialize();
+    int Main();
 
 private:
     // member functions
-    utils_fits::TPairFitsWAxis &ParametrizeEfficiencies();
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
-                                      TH1 &theTH1GenDist_dn_dptG,
-                                      bool theTH1IsInvariant,
-                                      bool theMultiplyResultTF1ByX);
+                                      TH1 &theTH1GenDist_dn_dptG_x, // x = inv or not
+                                      bool theTH1IsInvariant);
 
     // detector parametrizations
     TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
@@ -69,14 +70,22 @@ private:
     TF1 fTargetGenData_dn_dptG_inv; // from sFnameWeightsFile
     TH1D hGenDist_dn_dptG_inv;      // from sFnameWeightsFile
 
-    // from input derived information
+    // derived information
     TH1D hGenDist_dn_dptG;
     TF1 fTargetGenData_dn_dptG;
 
-    // measured output variables
+    // members that can't be initialized right away
     TF1 *fEffiAtAll_dp_dptG;
-
-    // ======================= helper functions ===============================
-    // helper members for accessing GammaConvV1 output files
+    utils_fits::TPairFitsWAxis *tPair_vFits_ptG_i_dp_dr_Axis;
     TAxis *aAxisPtG; // gets intialized in ParametrizeEfficiencies
+
+    TF1 *fGenDistTF1_dn_dptG_AS;
+    TF1 *fGenDistTF1_dn_dptG_AS_inv;
+
+    MCEffi *tMCEffi_D;          // Ngen shape as in data, no pt-weights
+    MCEffi *tMCEffi_AS_inv;     // Ngen shape as in AS MC, can run with and without pt-weights
+    MCEffi *tMCEffi_AS_special; // Ngen shape as in AS MC, can run with and without pt-weights
+
+    // accounting
+    bool bInitialized;
 };

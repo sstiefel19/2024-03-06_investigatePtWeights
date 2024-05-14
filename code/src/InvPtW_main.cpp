@@ -66,10 +66,16 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       fTargetGenData_dn_dptG(utils_TF1::MultiplyTF1ByX(sID + "_fTargetGenData_dn_dptG",
                                                        fTargetGenData_dn_dptG_inv)),
 
-      // output info
+      // get intialized in Initialize
       fEffiAtAll_dp_dptG(nullptr),
-      // helper structures
-      aAxisPtG(nullptr) // gets intialized in ParametrizeEfficiencies
+      tPair_vFits_ptG_i_dp_dr_Axis(nullptr),
+      aAxisPtG(nullptr),
+      fGenDistTF1_dn_dptG_AS(nullptr),
+      fGenDistTF1_dn_dptG_AS_inv(nullptr),
+      tMCEffi_D(nullptr),
+      tMCEffi_AS_inv(nullptr),
+      tMCEffi_AS_special(nullptr),
+      bInitialized(false)
 {
     printf("invPtWeights_class::invPtWeights_class(): created instance:\n"
            "\tsID: %s\n"
@@ -82,9 +88,7 @@ InvPtW_main::InvPtW_main(std::string const &theID,
            "\tfTargetGenData_dn_dptG_inv: %s\n"
            "\thGenDist_dn_dptG_inv: %s\n"
            "\thGenDist_dn_dptG: %s\n"
-           "\tfTargetGenData_dn_dptG: %s\n"
-           "\tfEffiAtAll_dp_dptG: %s\n"
-           "\taAxisPtG: %s\n",
+           "\tfTargetGenData_dn_dptG: %s\n",
            sID.data(),
            sFnameFitOverallEfficiency.data(),
            sFnameWeightsFile.data(),
@@ -95,48 +99,71 @@ InvPtW_main::InvPtW_main(std::string const &theID,
            fTargetGenData_dn_dptG_inv.GetName(),
            hGenDist_dn_dptG_inv.GetName(),
            hGenDist_dn_dptG.GetName(),
-           fTargetGenData_dn_dptG.GetName(),
-           "nullptr",
-           "nullptr");
+           fTargetGenData_dn_dptG.GetName());
 }
 
 // ===================== public member functions =================================
-int InvPtW_main::Main(bool theCalcPtWInInvForm)
+int InvPtW_main::Initialize()
 {
+    printf("\n\n\nint InvPtW_main::Initialize(): instance %s: starting to compile all parametrizations.\n", sID.data());
+
     // 1) fit overall efficiency
-    // this call also initialized aAxisPtG
-    utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis = ParametrizeEfficiencies();
+    fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
 
-    // 2) fit the genDist
-    TF1 &lGenDistTF1_dn_dptG_AS =
-        FitMCGeneratedParticlesHisto("auto",
-                                     theCalcPtWInInvForm ? hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG*/
-                                                         : hGenDist_dn_dptG,
-                                     theCalcPtWInInvForm /*theTH1IsInvariant*/,
-                                     theCalcPtWInInvForm /*theMultiplyResultTF1ByX*/);
+    // 2) create resolution parametrizations
+    tPair_vFits_ptG_i_dp_dr_Axis = &cRF.Compute();
+    aAxisPtG = &tPair_vFits_ptG_i_dp_dr_Axis->second;
 
-    // 3) create PtWeights instance
-    PtWeights &lPtWeights = CreatePtWeightsInstance(sID + "_lPtWeights", theCalcPtWInInvForm);
+    // 3) fit the genDist, once for inv once for not inv
+    fGenDistTF1_dn_dptG_AS =
+        &FitMCGeneratedParticlesHisto("auto",
+                                      hGenDist_dn_dptG, /*theTH1GenDist_dn_dptG_x*/
+                                      false /*theTH1IsInvariant*/);
 
-    // 3 create MCEffi instances
-    TAxis lAxisPtR(100, 0., 10.);
-    auto &lMCEffi_AS = *new MCEffi(sID + "_lMCEffi_AS_" + lPtWeights.GetID(), //
-                                   lGenDistTF1_dn_dptG_AS,                    // _fGenDist_dn_dptG
-                                   *fEffiAtAll_dp_dptG,                       // _fEffi_dp_dptG
-                                   lPair_vFits_ptG_i_dp_dr_Axis,              // _vFits_ptG_i_dp_dr_wAxis
-                                   lAxisPtR,                                  // _axisPtR
-                                   &lPtWeights);
+    fGenDistTF1_dn_dptG_AS_inv =
+        &FitMCGeneratedParticlesHisto("auto",
+                                      hGenDist_dn_dptG_inv /*theTH1GenDist_dn_dptG_x*/,
+                                      true /*theTH1IsInvariant*/);
 
-    auto &lMCEffi_D = *new MCEffi(sID + "_lMCEffi_D",           //
-                                  fTargetGenData_dn_dptG,       // _fGenDist_dn_dptG
-                                  *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
-                                  lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
-                                  lAxisPtR);
+    // 4) create MCEffi instances
+    tMCEffi_D = new MCEffi(sID + "_lMCEffi_D",
+                           fTargetGenData_dn_dptG,
+                           *fEffiAtAll_dp_dptG,
+                           *tPair_vFits_ptG_i_dp_dr_Axis,
+                           *aAxisPtG);
+
+    tMCEffi_AS_inv = new MCEffi(sID + "_lMCEffi_AS",
+                                *fGenDistTF1_dn_dptG_AS_inv,
+                                *fEffiAtAll_dp_dptG,
+                                *tPair_vFits_ptG_i_dp_dr_Axis,
+                                *aAxisPtG,
+                                &CreatePtWeightsInstance(sID + "_lPtWeights",
+                                                         true));
+
+    tMCEffi_AS_special = new MCEffi(sID + "_lMCEffi_AS",
+                                    *fGenDistTF1_dn_dptG_AS,
+                                    *fEffiAtAll_dp_dptG,
+                                    *tPair_vFits_ptG_i_dp_dr_Axis,
+                                    *aAxisPtG,
+                                    &CreatePtWeightsInstance(sID + "_lPtWeights",
+                                                             false));
+
+    printf("int InvPtW_main::Initialize(): instance %s: done initializing.\n\n\n", sID.data());
+    bInitialized = true;
+    return 1;
+}
+
+int InvPtW_main::Main()
+{
+    if (!bInitialized)
+    {
+        printf("int InvPtW_main::Main(): Instance%s::Main() called for the first time. Initializing now.\n", sID.data());
+        Initialize();
+    }
 
     // 4) plot results
-    lMCEffi_AS.SampleMeasuredEffi_NW_2();
-    lMCEffi_AS.PlotAll();
-    lMCEffi_D.PlotAll();
+    tMCEffi_D->PlotAll();
+    tMCEffi_AS_inv->PlotAll();
 
     return 0;
 }
@@ -164,31 +191,11 @@ PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
         *aAxisPtG);
 }
 
-// detector parametrizations
-utils_fits::TPairFitsWAxis &InvPtW_main::ParametrizeEfficiencies()
-{
-    fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
-    if (!fEffiAtAll_dp_dptG)
-    {
-        printf("investigatePtWeights_wResolutionEffects::ParametrizeEfficiencies():\n\t"
-               "ERROR: lEffiAtAll_dp_dptG is nullptr!\n"
-               "\tReturning dummy TPairFitsWAxis  NOT.\n");
-    }
-
-    utils_fits::TPairFitsWAxis &lResult = cRF.Compute();
-    aAxisPtG = &lResult.second;
-    return lResult;
-}
-
 // set first parameter to "auto" for auto-concatenated name
 TF1 &InvPtW_main::FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
-                                               TH1 &theTH1GenDist_dn_dptG,
-                                               bool theTH1IsInvariant,
-                                               bool theMultiplyResultTF1ByX)
+                                               TH1 &theTH1GenDist_dn_dptG_x, // x = inv or not
+                                               bool theTH1IsInvariant)
 {
-    // on top for readability
-    bool lResultIsInvariant_out = theTH1IsInvariant && !theMultiplyResultTF1ByX;
-
     // must not be empty
     if (!theResultNameInfo.size())
     {
@@ -196,29 +203,25 @@ TF1 &InvPtW_main::FitMCGeneratedParticlesHisto(std::string const &theResultNameI
                "ERROR: theResultNameInfo can't be empty!\n"
                "\tChose explicit name or \'auto\' for auto-concatenated name (verbose).\n"
                "\tReturning dummy TF1.\n");
-        return utils_TF1::CreateDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
+        return utils_TF1::CreateDummyTF1(theTH1GenDist_dn_dptG_x.GetName(), true /*theAddDummyTag*/);
     }
 
     // compile full result name
     std::string lResultFullName(
         theResultNameInfo != "auto" ? theResultNameInfo
                                     : Form("createGenDistFit_dn_dptG_from_%s_%s",
-                                           theTH1GenDist_dn_dptG.GetName(),
-                                           lResultIsInvariant_out ? "_inv" : ""));
+                                           theTH1GenDist_dn_dptG_x.GetName(),
+                                           theTH1IsInvariant ? "_inv" : ""));
 
     // create result TF1
-    TF1 &lTF1GenDist_dn_dptG = *new TF1(lResultFullName.data(),
-                                        theTH1IsInvariant ? "[0] + [1]/(x-[2])"
-                                                          : "[0]",
-                                        aAxisPtG->GetXmin(),
-                                        aAxisPtG->GetXmax());
+    TF1 &lTF1GenDist_dn_dptG_x = *new TF1(lResultFullName.data(),
+                                          theTH1IsInvariant ? "[0] + [1]/(x-[2])"
+                                                            : "[0]",
+                                          aAxisPtG->GetXmin(),
+                                          aAxisPtG->GetXmax());
     // perform fit
-    theTH1GenDist_dn_dptG.Fit(&lTF1GenDist_dn_dptG, "N");
-
-    return (!theMultiplyResultTF1ByX)
-               ? lTF1GenDist_dn_dptG
-               : utils_TF1::MultiplyTF1ByX(lResultFullName,
-                                           lTF1GenDist_dn_dptG);
+    theTH1GenDist_dn_dptG_x.Fit(&lTF1GenDist_dn_dptG_x, "N");
+    return lTF1GenDist_dn_dptG_x;
 }
 
 TF1 &InvPtW_main::GetMesonEfficiency(std::string fname, Double_t theXmax /*= 10.*/)
