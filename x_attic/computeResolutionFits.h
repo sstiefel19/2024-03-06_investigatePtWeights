@@ -148,7 +148,7 @@ computeResolutionFits(TH2 &theH2Resolution,
                       int binStart,
                       int ptBinMax,
                       int nR = 4,
-                      std::string const &fnameSave = "computeResolutionFits.root",
+                      std::string const &sFnameSaveFits = "computeResolutionFits.root",
                       bool theDrawAllFitsOverlayed = true,
                       bool thePlotSingles = false)
 {
@@ -167,14 +167,14 @@ computeResolutionFits(TH2 &theH2Resolution,
     saveCanvasAs(cR1);
 
     // first see if there is a file
-    bool lFile = fnameSave.size();
+    bool lFile = sFnameSaveFits.size();
     if (lFile)
     {
-        TFile &infile = *new TFile(fnameSave.data(), "READ");
+        TFile &infile = *new TFile(sFnameSaveFits.data(), "READ");
         if (infile.IsOpen())
         {
             printf("a file with name %s exists alerady. Trying to obtain fits from there..\n",
-                   fnameSave.data());
+                   sFnameSaveFits.data());
             if (getFitsFromFile(infile, binStart, ptBinMax, lResult))
             {
                 printf(" worked :)\n");
@@ -190,7 +190,7 @@ computeResolutionFits(TH2 &theH2Resolution,
 
     if (lFile)
     {
-        TFile *outfile = new TFile(fnameSave.data(), "RECREATE");
+        TFile *outfile = new TFile(sFnameSaveFits.data(), "RECREATE");
     }
 
     // make projections to get resolution in each bin of ptG
@@ -263,4 +263,3 @@ computeResolutionFits(TH2 &theH2Resolution,
     }
     return lResult;
 }
-

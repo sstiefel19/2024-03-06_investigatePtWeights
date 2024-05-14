@@ -30,20 +30,16 @@ public:
     InvPtW_main(std::string const &theID,
                 std::string const &theFnameInputEffiFit,
                 std::string const &theFnameWeightsFile,
-                std::string const &theFnameAS,
+                std::string const &theEvCutWeightsFile,
                 std::string const &theMeson,
-                std::string const &theEvCut,
-                std::string const &theEvCutAS,
-                std::string const &theMainDirAS,
-                std::string const &thePhotMesCutNo);
+                GCo const &theGCo_h2Resolution,
+                int theNR);
 
     int Main(bool theUseInvariantForm);
 
 private:
-    // detector parametrizations
-    utils_fits::TPairFitsWAxis &FitDetector(int theNRebin_r,
-                                            bool theDrawAllFitsOverlayed,
-                                            bool thePlotSingles);
+    // member functions
+    utils_fits::TPairFitsWAxis &ParametrizeEfficiencies();
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
@@ -58,32 +54,20 @@ private:
     PtWeights &CreatePtWeightsInstance(std::string const &theID,
                                        bool theComputeInInvariantForm);
 
-    // ==================== defining & intrinsic properties ====================
+    // ==================== member variables ====================
     // fnames for detector info and weights
-    std::string const id;
-    std::string sFnameInputEffiFit;
+    // intrinsic properties
+    std::string const sID;
+    std::string sFnameFitOverallEfficiency;
     std::string sFnameWeightsFile;
-
-    // input physiscs configs filenames
-    std::string sFnameAS;
+    std::string sEvCutWeightsFile;
     std::string sMeson;
-    std::string sEvCut;
-    std::string sEvCutAS;
-    GCo const gConvV1_AS;
-
-    // for the fitting
-    int iPtBinStart = 1;
-    int iPtBinMax = 31;
-    std::string sFnameResFits;
-
-    // ======================= derived properties ==============================
-
-    // holding detector reponse ptR vs. ptG
-    TH2F h2Resolution;
+    GCo const gGCo_h2Resolution; // from above
+    ComputeResolutionFits cRF;
 
     // defining data and MC distributions, will be extracted from above files
-    TF1 &fTargetGenData_dn_dptG_inv;
-    TH1 &hGenDist_dn_dptG_inv;
+    TF1 fTargetGenData_dn_dptG_inv; // from sFnameWeightsFile
+    TH1D hGenDist_dn_dptG_inv;      // from sFnameWeightsFile
 
     // from input derived information
     TH1D hGenDist_dn_dptG;
@@ -94,5 +78,5 @@ private:
 
     // ======================= helper functions ===============================
     // helper members for accessing GammaConvV1 output files
-    TAxis *aAxisPtG; // gets intialized in FitDetector
+    TAxis *aAxisPtG; // gets intialized in ParametrizeEfficiencies
 };

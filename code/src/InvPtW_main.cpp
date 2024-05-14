@@ -30,63 +30,74 @@
 InvPtW_main::InvPtW_main(std::string const &theID,
                          std::string const &theFnameInputEffiFit,
                          std::string const &theFnameWeightsFile,
-                         std::string const &theFnameAS,
+                         std::string const &theEvCutWeightsFile,
                          std::string const &theMeson,
-                         std::string const &theEvCut,
-                         std::string const &theEvCutAS,
-                         std::string const &theMainDirAS,
-                         std::string const &thePhotMesCutNo)
-    : id(theID),
-      sFnameInputEffiFit(theFnameInputEffiFit),
+                         GCo const &theGCo_h2Resolution,
+                         int theNR)
+    : sID(theID),
+      sFnameFitOverallEfficiency(theFnameInputEffiFit),
       sFnameWeightsFile(theFnameWeightsFile),
-      sFnameAS(theFnameAS),
+      sEvCutWeightsFile(theEvCutWeightsFile),
       sMeson(theMeson),
-      sEvCut(theEvCut),
-      sEvCutAS(theEvCutAS),
-      gConvV1_AS(GCo(sFnameAS,
-                     theMainDirAS,
-                     sEvCutAS,
-                     thePhotMesCutNo)),
+      gGCo_h2Resolution(theGCo_h2Resolution),
 
       // derive
-      sFnameResFits(Form("input_root/%s_resolutionFits_%d-%d.root",
-                         sEvCutAS.data(),
-                         iPtBinStart,
-                         iPtBinMax)),
-
-      h2Resolution(*(TH2F *)gConvV1_AS.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt")),
+      // 2) create resolution parametrizations
+      cRF(ComputeResolutionFits(
+          gGCo_h2Resolution,
+          1,  // thePtBinStart
+          31, // thePtBinMax
+          theNR /*theNR*/,
+          true, // theDrawAllFitsOverlayed
+          false /*thePlotSingles*/)),
 
       fTargetGenData_dn_dptG_inv(*(TF1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
-          sMeson + "_Data_5TeV_" + sEvCut.substr(0, 6))),
+          sMeson + "_Data_5TeV_" + sEvCutWeightsFile.substr(0, 6))),
 
-      hGenDist_dn_dptG_inv(*(TH1 *)getObjectFromPathInFile(
+      hGenDist_dn_dptG_inv(*(TH1D *)getObjectFromPathInFile(
           sFnameWeightsFile,
-          sMeson + "_LHC24a1_5TeV_" + sEvCutAS)),
+          sMeson + "_LHC24a1_5TeV_" + sEvCutWeightsFile)),
 
       // compute
       hGenDist_dn_dptG(*(TH1D *)multiplyTH1ByBinCenters(hGenDist_dn_dptG_inv,
                                                         "",
                                                         "hGenDist_dn_dptG")),
-      fTargetGenData_dn_dptG(utils_TF1::MultiplyTF1ByX(id + "fTargetGenData_dn_dptG",
+      fTargetGenData_dn_dptG(utils_TF1::MultiplyTF1ByX(sID + "_fTargetGenData_dn_dptG",
                                                        fTargetGenData_dn_dptG_inv)),
 
       // output info
       fEffiAtAll_dp_dptG(nullptr),
       // helper structures
-      aAxisPtG(nullptr) // gets intialized in FitDetector
+      aAxisPtG(nullptr) // gets intialized in ParametrizeEfficiencies
 {
-    printf("invPtWeights_class::invPtWeights_class(): created instance %s %s %s %s %s %s %s %s %d %d\n",
-           id.data(),
-           sMeson.data(),
-           sEvCut.data(),
-           sEvCutAS.data(),
-           sFnameAS.data(),
-           sFnameInputEffiFit.data(),
-           sFnameResFits.data(),
+    printf("invPtWeights_class::invPtWeights_class(): created instance:\n"
+           "\tsID: %s\n"
+           "\tsFnameFitOverallEfficiency: %s\n"
+           "\tsFnameWeightsFile: %s\n"
+           "\tsEvCutWeightsFile: %s\n"
+           "\tsMeson: %s\n"
+           "\tgGCo_h2Resolution: %s\n"
+           "\tcRF: %s\n"
+           "\tfTargetGenData_dn_dptG_inv: %s\n"
+           "\thGenDist_dn_dptG_inv: %s\n"
+           "\thGenDist_dn_dptG: %s\n"
+           "\tfTargetGenData_dn_dptG: %s\n"
+           "\tfEffiAtAll_dp_dptG: %s\n"
+           "\taAxisPtG: %s\n",
+           sID.data(),
+           sFnameFitOverallEfficiency.data(),
            sFnameWeightsFile.data(),
-           iPtBinStart,
-           iPtBinMax);
+           sEvCutWeightsFile.data(),
+           sMeson.data(),
+           gGCo_h2Resolution.fname.data(),
+           cRF.GetID().data(),
+           fTargetGenData_dn_dptG_inv.GetName(),
+           hGenDist_dn_dptG_inv.GetName(),
+           hGenDist_dn_dptG.GetName(),
+           fTargetGenData_dn_dptG.GetName(),
+           "nullptr",
+           "nullptr");
 }
 
 // ===================== public member functions =================================
@@ -96,13 +107,7 @@ int InvPtW_main::Main(bool theCalcPtWInInvForm)
     // this call also initialized aAxisPtG
     int lNRebin_r = 4;
     utils_fits::TPairFitsWAxis &lPair_vFits_ptG_i_dp_dr_Axis =
-        FitDetector(lNRebin_r /* theNRebin_r */,
-                    true /* theDrawAllFitsOverlayed */,
-                    false /* thePlotSingles */);
-
-    /*more accurate way to get the genDist:
-   h_inv -> h -> f
-   TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");*/
+        ParametrizeEfficiencies();
 
     // 2) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS =
@@ -113,19 +118,19 @@ int InvPtW_main::Main(bool theCalcPtWInInvForm)
                                      theCalcPtWInInvForm /*theMultiplyResultTF1ByX*/);
 
     // 3) create PtWeights instance
-    PtWeights &lPtWeights = CreatePtWeightsInstance(id + "_lPtWeights",
-                                                     theCalcPtWInInvForm);
+    PtWeights &lPtWeights = CreatePtWeightsInstance(sID + "_lPtWeights",
+                                                    theCalcPtWInInvForm);
 
     // 3 create MCEffi instances
     TAxis lAxisPtR(100, 0., 10.);
-    auto &lMCEffi_AS = *new MCEffi(id + "_lMCEffi_AS_" + lPtWeights.GetID(), //
+    auto &lMCEffi_AS = *new MCEffi(sID + "_lMCEffi_AS_" + lPtWeights.GetID(), //
                                    lGenDistTF1_dn_dptG_AS,                    // _fGenDist_dn_dptG
                                    *fEffiAtAll_dp_dptG,                       // _fEffi_dp_dptG
                                    lPair_vFits_ptG_i_dp_dr_Axis,              // _vFits_ptG_i_dp_dr_wAxis
                                    lAxisPtR,                                  // _axisPtR
                                    &lPtWeights);
 
-    auto &lMCEffi_D = *new MCEffi(id + "_lMCEffi_D",            //
+    auto &lMCEffi_D = *new MCEffi(sID + "_lMCEffi_D",           //
                                   fTargetGenData_dn_dptG,       // _fGenDist_dn_dptG
                                   *fEffiAtAll_dp_dptG,          // _fEffi_dp_dptG
                                   lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
@@ -163,35 +168,17 @@ PtWeights &InvPtW_main::CreatePtWeightsInstance(std::string const &theID,
 }
 
 // detector parametrizations
-utils_fits::TPairFitsWAxis &InvPtW_main::FitDetector(int theNRebin_r,
-                                                     bool theDrawAllFitsOverlayed,
-                                                     bool thePlotSingles)
+utils_fits::TPairFitsWAxis &InvPtW_main::ParametrizeEfficiencies()
 {
-    fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameInputEffiFit);
+    fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
     if (!fEffiAtAll_dp_dptG)
     {
-        printf("investigatePtWeights_wResolutionEffects::FitDetector():\n\t"
+        printf("investigatePtWeights_wResolutionEffects::ParametrizeEfficiencies():\n\t"
                "ERROR: lEffiAtAll_dp_dptG is nullptr!\n"
                "\tReturning dummy TPairFitsWAxis  NOT.\n");
     }
 
-    // 2) create resolution parametrizations
-    ComputeResolutionFits &lCRF = *new ComputeResolutionFits(
-        h2Resolution,
-        iPtBinStart,
-        iPtBinMax,
-        theNRebin_r,
-        sFnameResFits,
-        theDrawAllFitsOverlayed,
-        thePlotSingles);
-
-    utils_fits::TPairFitsWAxis &lResult = lCRF.Compute(h2Resolution,
-                                                       iPtBinStart,
-                                                       iPtBinMax,
-                                                       theNRebin_r,
-                                                       sFnameResFits,
-                                                       true /*drawAllFitsOverlayed*/,
-                                                       false /*plotSingles*/);
+    utils_fits::TPairFitsWAxis &lResult = cRF.Compute();
     aAxisPtG = &lResult.second;
     return lResult;
 }
@@ -212,7 +199,7 @@ TF1 &InvPtW_main::FitMCGeneratedParticlesHisto(std::string const &theResultNameI
                "ERROR: theResultNameInfo can't be empty!\n"
                "\tChose explicit name or \'auto\' for auto-concatenated name (verbose).\n"
                "\tReturning dummy TF1.\n");
-        return utils_TF1::GetDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
+        return utils_TF1::CreateDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
     }
 
     // compile full result name

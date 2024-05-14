@@ -1,5 +1,7 @@
 #pragma once
 
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
 
 class TAxis;
@@ -14,34 +16,33 @@ class TLegend;
 class ComputeResolutionFits
 {
 public:
-    ComputeResolutionFits(TH2 &theH2Resolution,
+    ComputeResolutionFits(GCo const &theGCo_h2Res,
                           int theBinStart,
                           int thePtBinMax,
                           int theNR,
-                          std::string const &theFnameSave,
                           bool theDrawAllFitsOverlayed,
                           bool thePlotSingles);
 
     utils_fits::TPairFitsWAxis &
-    Compute(TH2 &theH2Resolution,
-            int binStart,
-            int ptBinMax,
-            int nR,
-            std::string const &fnameSave,
-            bool theDrawAllFitsOverlayed = true,
-            bool thePlotSingles = false);
+    Compute();
 
     bool GetFitsFromFile(TFile &theFile,
                          int binStart,
                          int ptBinMax,
                          utils_fits::TPairFitsWAxis &thePair);
 
+    std::string const &GetID() const { return sID; }
+
 private:
-    TH2 &h2Resolution;
-    int binStart;
-    int ptBinMax;
-    int nR;
-    std::string const fnameSave;
+    std::string const sID;
+    GCo const &gCo_h2Res; // from above
+    TH2F h2Resolution;
+    int const iPtBinStart = 1;
+    int const iPtBinMax = 31;
+    int iNR;
+
+    // derived
+    std::string const sFnameSaveFits;
     bool theDrawAllFitsOverlayed;
     bool thePlotSingles;
 };

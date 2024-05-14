@@ -62,7 +62,7 @@ TF1 &fitGenDistHisto(std::string const &theResultNameInfo,
                "ERROR: theResultNameInfo can't be empty!\n"
                "\tChose explicit name or \'auto\' for auto-concatenated name (verbose).\n"
                "\tReturning dummy TF1.\n");
-        return utils_TF1::GetDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
+        return utils_TF1::CreateDummyTF1(theTH1GenDist_dn_dptG.GetName(), true /*theAddDummyTag*/);
     }
 
     // compile full result name

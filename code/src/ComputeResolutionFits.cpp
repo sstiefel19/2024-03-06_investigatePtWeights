@@ -9,64 +9,61 @@
 #include "TH2.h"
 #include "TLegend.h"
 
-ComputeResolutionFits::ComputeResolutionFits(TH2 &theH2Resolution,
-                                             int theBinStart,
+ComputeResolutionFits::ComputeResolutionFits(GCo const &theGCo_h2Res,
+                                             int thePtBinStart,
                                              int thePtBinMax,
                                              int theNR,
-                                             std::string const &theFnameSave,
                                              bool theDrawAllFitsOverlayed,
                                              bool thePlotSingles)
-    : h2Resolution(theH2Resolution),
-      binStart(theBinStart),
-      ptBinMax(thePtBinMax),
-      nR(theNR),
-      fnameSave(theFnameSave),
+    : gCo_h2Res(theGCo_h2Res),
+      h2Resolution(*(TH2F *)gCo_h2Res.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt")),
+      iPtBinStart(thePtBinStart),
+      iPtBinMax(thePtBinMax),
+      iNR(theNR),
+      sFnameSaveFits(Form("input_root/%s_resolutionFits_%d-%d.root",
+                          gCo_h2Res.evCut.data(),
+                          thePtBinStart,
+                          thePtBinMax)),
       theDrawAllFitsOverlayed(theDrawAllFitsOverlayed),
       thePlotSingles(thePlotSingles)
 {
     printf("ComputeResolutionFits::ComputeResolutionFits(): created instance:\n"
-          "\th2Resolution: %s binStart: %d, ptBinMax: %d\n",
-          h2Resolution.GetName(), binStart, ptBinMax);
+           "\th2Resolution: %s iPtBinStart: %d, iPtBinMax: %d\n",
+           h2Resolution.GetName(), iPtBinStart, iPtBinMax);
 }
 
 utils_fits::TPairFitsWAxis &
-ComputeResolutionFits::Compute(TH2 &theH2Resolution,
-                               int binStart,
-                               int ptBinMax,
-                               int nR,
-                               std::string const &fnameSave,
-                               bool theDrawAllFitsOverlayed /* = true */,
-                               bool thePlotSingles /* = false */)
+ComputeResolutionFits::Compute()
 
-{   
-    printf("ComputeResolutionFits::Compute(): binStart: %d, ptBinMax: %d\n", binStart, ptBinMax);
+{
+    printf("ComputeResolutionFits::Compute(): iPtBinStart: %d, iPtBinMax: %d\n", iPtBinStart, iPtBinMax);
 
-    std::vector<TH1 *> &vHists_ptG_i_dn_dr = *new std::vector<TH1 *>(ptBinMax + 1, static_cast<TH1 *>(nullptr));
-    std::vector<TF1 *> &vFits_ptG_i_dp_dr = *new std::vector<TF1 *>(ptBinMax + 1, static_cast<TF1 *>(nullptr));
+    std::vector<TH1 *> &vHists_ptG_i_dn_dr = *new std::vector<TH1 *>(iPtBinMax + 1, static_cast<TH1 *>(nullptr));
+    std::vector<TF1 *> &vFits_ptG_i_dp_dr = *new std::vector<TF1 *>(iPtBinMax + 1, static_cast<TF1 *>(nullptr));
 
-    // TAxis          &lPtGAxis = *theH2Resolution.GetXaxis();
-    TAxis &lPtGAxis = *copyTAxisUpToPt(*theH2Resolution.GetXaxis(), 9.9);
+    // TAxis          &lPtGAxis = *h2Resolution.GetXaxis();
+    TAxis &lPtGAxis = *copyTAxisUpToPt(*h2Resolution.GetXaxis(), 9.9);
     utils_fits::TPairFitsWAxis &lResult = *new utils_fits::TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
 
     // plot th2
     TCanvas &cR1 = *new TCanvas("computeResolutionFits_TH2", "computeResolutionFits_TH2", 2000, 1000);
-    theH2Resolution.GetXaxis()->SetRangeUser(0., 10.);
-    theH2Resolution.Draw("colz");
+    h2Resolution.GetXaxis()->SetRangeUser(0., 10.);
+    h2Resolution.Draw("colz");
     gPad->SetLogz();
     saveCanvasAs(cR1);
 
-    std::cout << "ComputeResolutionFits::Compute(): binStart: " << binStart << ", ptBinMax: " << ptBinMax << " " << fnameSave.data() << std::endl;
+    std::cout << "ComputeResolutionFits::Compute(): iPtBinStart: " << iPtBinStart << ", iPtBinMax: " << iPtBinMax << " " << sFnameSaveFits.data() << std::endl;
 
     // first see if there is a file
-    bool lFile = fnameSave.size();
+    bool lFile = sFnameSaveFits.size();
     if (lFile)
     {
-        TFile &infile = *new TFile(fnameSave.data(), "READ");
+        TFile &infile = *new TFile(sFnameSaveFits.data(), "READ");
         if (infile.IsOpen())
         {
             printf("a file with name %s exists alerady. Trying to obtain fits from there..\n",
-                   fnameSave.data());
-            if (GetFitsFromFile(infile, binStart, ptBinMax, lResult))
+                   sFnameSaveFits.data());
+            if (GetFitsFromFile(infile, iPtBinStart, iPtBinMax, lResult))
             {
                 printf(" worked :)\n");
                 return lResult;
@@ -81,24 +78,24 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
 
     if (lFile)
     {
-        TFile *outfile = new TFile(fnameSave.data(), "RECREATE");
+        TFile *outfile = new TFile(sFnameSaveFits.data(), "RECREATE");
     }
 
     // make projections to get resolution in each bin of ptG
     Double_t *lLastBinFoundParams = new Double_t[7];
-    for (int i = binStart; i <= ptBinMax; ++i)
+    for (int i = iPtBinStart; i <= iPtBinMax; ++i)
     {
         cout << i << endl;
         Double_t ptMin = lPtGAxis.GetBinLowEdge(i);
         Double_t ptMax = lPtGAxis.GetBinLowEdge(i + 1);
 
         // project on r
-        TH1 &h1 = *theH2Resolution.ProjectionY(Form("hRes_PtBin%d_%.1f-%.1f_GeV", i, ptMin, ptMax), i, i);
+        TH1 &h1 = *h2Resolution.ProjectionY(Form("hRes_PtBin%d_%.1f-%.1f_GeV", i, ptMin, ptMax), i, i);
         h1.SetTitle(h1.GetName());
         vHists_ptG_i_dn_dr[i] = &h1;
 
         // rebin in r
-        int lNR = (i == 3) ? 8 : nR;
+        int lNR = (i == 3) ? 8 : iNR;
         TH1 &h1r = *h1.Rebin(lNR, Form("%s_reb%d", h1.GetName(), lNR));
         h1r.SetTitle(h1r.GetName());
 
@@ -158,8 +155,8 @@ ComputeResolutionFits::Compute(TH2 &theH2Resolution,
 
 bool ComputeResolutionFits::
     GetFitsFromFile(TFile &theFile,
-                    int binStart,
-                    int ptBinMax,
+                    int iPtBinStart,
+                    int iPtBinMax,
                     utils_fits::TPairFitsWAxis &thePair)
 {
     if (!theFile.IsOpen())
@@ -169,7 +166,7 @@ bool ComputeResolutionFits::
     }
     thePair.second = *(TAxis *)theFile.Get("lPtGAxis");
 
-    for (int i = binStart; i <= ptBinMax; ++i)
+    for (int i = iPtBinStart; i <= iPtBinMax; ++i)
     {
 
         const char *fitname = Form("fitN_ptGbin_%d", i);
