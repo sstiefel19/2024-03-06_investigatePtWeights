@@ -17,19 +17,23 @@ public:
             utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
             PtWeights *_fPtWeights = nullptr);
 
+    ~dN_dptR();
+
     // ptG will be integrated out
     // can't be const since tIntegrand.fTF1.par[0] will be set to *ptR
     double Evaluate_1D(double *ptR, double *);
 
-    std::string const &GetID() const { return id; }    
-    dN_dptR_integrand  &GetIntegrand();    
-    TF1 &GetNewTF1(double ptR) const;
-    TF2 &GetNewTF2() const;
+    TF1 const &GetGenDist_dn_dptG() const { return GetIntegrand().GetGenDist_dn_dptG(); }
+    std::string const &GetID() const { return id; }
+    dN_dptR_integrand const &GetIntegrand() const { return tIntegrand; }
 
-    ~dN_dptR();
+    TF1 const &GetTF1WithLastSetPtR() { return tIntegrand.GetTF1WithLastSetPtR(); }
+    TF2 const &GetTF2_dN_dptG_dptR() const { return tIntegrand.GetTF2_dN_dptG_dptR(); }
+
+    // TF2 &GetTF2_dN_dptG_dptR_clone() const { return tIntegrand.GetTF2_dN_dptG_dptR(); }
 
 private:
     std::string id;
     dN_dptR_integrand tIntegrand;
-    PtWeights *tPtWeights;
+    PtWeights *tPtWeights_opt;
 };

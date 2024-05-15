@@ -16,41 +16,25 @@ dN_dptR::dN_dptR(std::string const &_id,
                  _fEffi_dp_dptG,
                  _vFits_ptG_i_dp_dr_wAxis,
                  _tPtWeights),
-      tPtWeights(_tPtWeights)
+      tPtWeights_opt(_tPtWeights)
 {
     printf("dN_dptR::dN_dptR(): created instance %s %s ptWeights.\n",
-           id.data(), tPtWeights ? "with" : "without");
-}
-
-double dN_dptR::Evaluate_1D(double *ptR, double *)
-{
-    TF1 &lTF1 = tIntegrand.GetTF1();
-    lTF1.SetParameter(0, *ptR);
-
-    // calculate necessary ptG range.
-    /* r = (ptR - ptG) / ptG
-     * ptG = ptR / (r + 1)
-     * dp/dr = 0 for r outside [-1., 1.] */
-    double lIntMin = TMath::Max(lTF1.GetXmin(), 0.5 * *ptR);
-    return lTF1.Integral(lIntMin, lTF1.GetXmax());
-}
-
-TF1 &dN_dptR::GetNewTF1(double ptR) const
-{
-    return tIntegrand.GetNewTF1(ptR);
-}
-
-TF2 &dN_dptR::GetNewTF2() const
-{
-    return tIntegrand.GetNewTF2();
-}
-
-dN_dptR_integrand  &dN_dptR::GetIntegrand() 
-{
-    return tIntegrand;
+           id.data(), tPtWeights_opt ? "with" : "without");
 }
 
 dN_dptR::~dN_dptR()
 {
     printf("dN_dptR::~dN_dptR(): destructor for %s called.\n", id.data());
+}
+
+double dN_dptR::Evaluate_1D(double *ptR, double *)
+{
+    // calculate necessary ptG range.
+    /* r = (ptR - ptG) / ptG
+     * ptG = ptR / (r + 1)
+     * dp/dr = 0 for r outside [-1., 1.] */
+    tIntegrand.SetTF1ParameterPtR(*ptR);
+    TF1 &lTF1 = tIntegrand.GetTF1Reference();
+    double lIntMin = TMath::Max(lTF1.GetXmin(), 0.5 * *ptR);
+    return lTF1.Integral(lIntMin, lTF1.GetXmax());
 }

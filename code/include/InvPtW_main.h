@@ -40,6 +40,33 @@ public:
     int Initialize();
     int Main();
 
+    // getters
+    TAxis const *GetAxisPtG() const { return aAxisPtG; }
+    TF1 const *GetEffiAtAll_dp_dptG() const { return fEffiAtAll_dp_dptG; }
+    GCo const &GetGCo_h2Resolution() const { return tGCo_forH2Resolution; }
+
+    ComputeResolutionFits const &GetResFitsInstance() const { return tResolutionFits; }
+    utils_fits::TPairFitsWAxis const *GetPair_vFits_ptG_i_dp_dr_Axis() const { return tPair_vFits_ptG_i_dp_dr_Axis; }
+
+    std::string const &GetEvCutWeightsFile() const { return sEvCutWeightsFile; }
+    std::string const &GetFnameFitOverallEfficiency() const { return sFnameFitOverallEfficiency; }
+    std::string const &GetFnameWeightsFile() const { return sFnameWeightsFile; }
+    std::string const &GetMeson() const { return sMeson; }
+
+    TH1D const &GetGenDist_dn_dptG_inv() const { return hGenDist_dn_dptG_inv; }
+    TH1D const &GetGenDist_dn_dptG() const { return hGenDist_dn_dptG; }
+    TF1 const *GetGenDistTF1_dn_dptG_AS() const { return fGenDistTF1_dn_dptG_AS; }
+    TF1 const *GetGenDistTF1_dn_dptG_AS_inv() const { return fGenDistTF1_dn_dptG_AS_inv; }
+    TF1 const &GetTargetGenData_dn_dptG_inv() const { return fTargetGenData_dn_dptG_inv; }
+    TF1 const &GetTargetGenData_dn_dptG() const { return fTargetGenData_dn_dptG; }
+
+    MCEffi &GetMCEffi_D() { return *tMCEffi_D; }
+    MCEffi &GetMCEffi_AS_inv() { return *tMCEffi_AS_inv; }
+    MCEffi &GetMCEffi_AS_special() { return *tMCEffi_AS_special; }
+
+    std::string const &GetID() const { return sID; }
+    bool IsInitialized() const { return bInitialized; }
+
 private:
     // member functions
 
@@ -63,8 +90,9 @@ private:
     std::string sFnameWeightsFile;
     std::string sEvCutWeightsFile;
     std::string sMeson;
-    GCo const gGCo_h2Resolution; // from above
-    ComputeResolutionFits cRF;
+
+    GCo const tGCo_forH2Resolution; // from above
+    ComputeResolutionFits tResolutionFits;
 
     // defining data and MC distributions, will be extracted from above files
     TF1 fTargetGenData_dn_dptG_inv; // from sFnameWeightsFile

@@ -39,12 +39,12 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       sFnameWeightsFile(theFnameWeightsFile),
       sEvCutWeightsFile(theEvCutWeightsFile),
       sMeson(theMeson),
-      gGCo_h2Resolution(theGCo_h2Resolution),
+      tGCo_forH2Resolution(theGCo_h2Resolution),
 
       // derive
       // 2) create resolution parametrizations
-      cRF(ComputeResolutionFits(
-          gGCo_h2Resolution,
+      tResolutionFits(ComputeResolutionFits(
+          tGCo_forH2Resolution,
           1,  // thePtBinStart
           31, // thePtBinMax
           theNR /*theNR*/,
@@ -66,7 +66,7 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       fTargetGenData_dn_dptG(utils_TF1::MultiplyTF1ByX(sID + "_fTargetGenData_dn_dptG",
                                                        fTargetGenData_dn_dptG_inv)),
 
-      // get intialized in Initialize
+      // get initialized in Initialize
       fEffiAtAll_dp_dptG(nullptr),
       tPair_vFits_ptG_i_dp_dr_Axis(nullptr),
       aAxisPtG(nullptr),
@@ -94,8 +94,8 @@ InvPtW_main::InvPtW_main(std::string const &theID,
            sFnameWeightsFile.data(),
            sEvCutWeightsFile.data(),
            sMeson.data(),
-           gGCo_h2Resolution.fname.data(),
-           cRF.GetID().data(),
+           tGCo_forH2Resolution.fname.data(),
+           tResolutionFits.GetID().data(),
            fTargetGenData_dn_dptG_inv.GetName(),
            hGenDist_dn_dptG_inv.GetName(),
            hGenDist_dn_dptG.GetName(),
@@ -111,7 +111,7 @@ int InvPtW_main::Initialize()
     fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
 
     // 2) create resolution parametrizations
-    tPair_vFits_ptG_i_dp_dr_Axis = &cRF.Compute();
+    tPair_vFits_ptG_i_dp_dr_Axis = &tResolutionFits.Compute();
     aAxisPtG = &tPair_vFits_ptG_i_dp_dr_Axis->second;
 
     // 3) fit the genDist, once for inv once for not inv
@@ -161,9 +161,9 @@ int InvPtW_main::Main()
         Initialize();
     }
 
-    // 4) plot results
-    tMCEffi_D->PlotAll();
-    tMCEffi_AS_inv->PlotAll();
+    // // 4) plot results
+    // tMCEffi_D->PlotAll();
+    // tMCEffi_AS_inv->PlotAll();
 
     return 0;
 }

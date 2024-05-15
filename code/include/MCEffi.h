@@ -1,12 +1,31 @@
+// encapsulates a set of:
+/*
+// intrinsic data members
+    1. std::string sID;
+    2. TF1 &fMCGenDist_dn_dptG; // the natural distribution of generated particles in this MC.
+    TAxis axisPtR;
+    // defining since it holds the pt-weights instance
+    3. dN_dptR *tdN_dptR_WW_opt; // to simulate the numbers of reconstructed particles with pt-weights
+
+// expressive members
+    4. dN_dptR tdN_dptR_NW; // to simulate the numbers of reconstructed particles without pt-weights
+    10. TH1 *hMeasuredEffi_NW_2;
+    11. TH1 *hMeasuredEffi_WW_2_opt; // optional
+
+*/
+
 #pragma once
 
 #include "TAxis.h"
-#include "TList.h"
+#include "TObject.h"
 #include "dN_dptR.h"
 #include "PtWeights.h"
+
 #include <string>
+#include <list>
 
 class TLegend;
+
 
 class MCEffi
 {
@@ -18,42 +37,38 @@ public:
            TAxis &_axisPtR,
            PtWeights *_tPtWeights = nullptr);
 
-    // integrate TF2
-    TH1 &SampleMeasuredEffi_NW_2(Color_t theLineColor = kBlue);
-    TH1 *SampleMeasuredEffi_WW_2(Color_t theLineColor = kBlue);
-
-    std::string const &GetID() const { return id; }
-
+public:
+    std::string const &GetID() const { return sID; }
+    TH1 const &GetMeasuredEffi_NW();
+    TH1 const *GetMeasuredEffi_WW();
     void PlotAll(TLegend *theLeg = nullptr);
 
 private:
-    // private member functions
-    TH1 &SampleTH1FromTF2(TF2 &theTF2_d_dptG_dptR, std::string name = "");
-
-    TH1 &SampleMeasuredEffi_generic(std::string const &theSuffix,
-                                    TF1 &theNumF,
-                                    TF1 &theDenF,
-                                    TAxis const &theAxis) const;
-
-    // defining data members
-    std::string id;
-    TF1 &fGenDist_dn_dptG; // todo make const ?!
-    dN_dptR tdN_dptR_NW;
+    // intrinsic data members
+    std::string sID;
     TAxis axisPtR;
+    // defining since it holds the pt-weights instance
+    dN_dptR tdN_dptR_NW;      // to simulate the numbers of reconstructed particles without pt-weights
+    dN_dptR *tdN_dptR_WW_opt; // to simulate the numbers of reconstructed particles with pt-weights
 
-    // optional members
-    PtWeights *tPtWeights;
-    dN_dptR *tdN_dptR_WW;
+    // expressive members
+    TH1 *hMeasuredEffi_NW_2;
+    TH1 *hMeasuredEffi_WW_2_opt; // optional
 
-    // helper members
-    TF1 *fGenDist_dn_dptG_WW;
-    TH1 *hMCGen_NW;
-    TH1 *hMCRec_NW;
-    TH1 *hEffiRec_NW;
+    // list of references is more complicated
+    std::list<TObject const *> tListReadyForDrawing;
 
-    TH1 *hMCGen_WW;
-    TH1 *hMCRec_WW;
-    TH1 *hEffiRec_WW;
+    // private member functions
+    // helper functions - move out?
+    TH1 &SampleMeasuredEffi_generic_1D(std::string const &theSuffix,
+                                       TF1 const &theNumF,
+                                       TF1 const &theDenF,
+                                       TAxis const &theAxis) const;
 
-    TList fListAllInit;
+    TH1 &SampleMeasuredEffi_generic_2D(std::string const &theName,
+                                       TF2 const &theNumTF2_dN_dptG_dptR,
+                                       TF1 const &theDenTF1_dN_dptR) const;
+
+    TH1 &SampleMeasuredEffi_NW_2();
+    TH1 *SampleMeasuredEffi_WW_2();
 };

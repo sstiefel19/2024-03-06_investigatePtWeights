@@ -22,9 +22,15 @@ void run_InvPtW_main()
         lGCo_AS,
         lNR);
 
-    lInvPtW_main.Main();
+    lInvPtW_main.Initialize();
+    // lInvPtW_main.Main();
 
-    // compare pt weights invariant and special
+    MCEffi &lEffi_data = lInvPtW_main.GetMCEffi_D();
+    // MCEffi  &lEffi_AS_inv = lInvPtW_main.GetMCEffi_AS_inv();
+    // MCEffi &lEffi_AS_special = lInvPtW_main.GetMCEffi_AS_special();
+
+    lEffi_data.PlotAll();
+
     /*
         what do I wanna know?
         in data it holds:
