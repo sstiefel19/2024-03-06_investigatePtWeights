@@ -153,7 +153,7 @@ public:
         fDataDist = multiplyTF1ByX(*fDataDist_i, (fID + "fDataDist").data());
         fDataDist->SetLineColor(kGreen);
 
-        hMCGenSampled = getSampledH(*fGenDist, *hGenHistInit_i /*for binning*/);
+        hMCGenSampled = utils_computational::GetSampledH(*fGenDist, *hGenHistInit_i /*for binning*/);
         hMCGenSampled_i = divideTH1ByBinCenters(*hMCGenSampled);
 
         fGenDistWW = buildWeightedDist(fID + "WeightedGenDist",
@@ -166,9 +166,9 @@ public:
 
         fMCRecDistWW = getTF1Product(fID + "fMCRecDistWW", fTrueEffi, fGenDistWW);
 
-        hMCRec = getSampledH(*fMCRecDist, *hGenHistInit_i /*for binning*/);
-        hMCGenSampledWW = getSampledH(*fGenDistWW, *hGenHistInit_i /*for binning*/);
-        hMCRecWW = getSampledH(*fMCRecDistWW, *hGenHistInit_i /*for binning*/);
+        hMCRec = utils_computational::GetSampledH(*fMCRecDist, *hGenHistInit_i /*for binning*/);
+        hMCGenSampledWW = utils_computational::GetSampledH(*fGenDistWW, *hGenHistInit_i /*for binning*/);
+        hMCRecWW = utils_computational::GetSampledH(*fMCRecDistWW, *hGenHistInit_i /*for binning*/);
 
         AddToPlotList();
     }
@@ -200,8 +200,8 @@ public:
         }
     }
 
-    TH1 *GetMeasuredEffiWoW() { return divideTH1ByTH1(*hMCRec, *hMCGenSampled, "", (fID + "hMeasuredEffi").data()); }
-    TH1 *GetMeasuredEffiWW() { return divideTH1ByTH1(*hMCRecWW, *hMCGenSampledWW, "", (fID + "hMeasuredEffiWW").data()); }
+    TH1 *GetMeasuredEffiWoW() { return utils_TH1::DivideTH1ByTH1(*hMCRec, *hMCGenSampled, "", (fID + "hMeasuredEffi").data()); }
+    TH1 *GetMeasuredEffiWW() { return utils_TH1::DivideTH1ByTH1(*hMCRecWW, *hMCGenSampledWW, "", (fID + "hMeasuredEffiWW").data()); }
 
     std::string fID;
     TH1 *hGenHistInit_i; // used to fit fGenDist

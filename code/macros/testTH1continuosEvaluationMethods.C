@@ -60,14 +60,14 @@ void testTH1continuosEvaluationMethods()
         fnameWeightsFile, meson + "_LHC24a1_5TeV_" + centAS);
 
     // h_inv -> h
-    TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
+    TH1 &hGenDist_AS_dn_dptG = *utils_TH1::MultiplyTH1ByBinCenters(hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
 
     // h -> f
     TF1 &fMCGenDist_dn_dptG = *new TF1("fMCGenDist_dn_dptG", "[0]", 0., 10.);
     hGenDist_AS_dn_dptG.Fit(&fMCGenDist_dn_dptG, "N");
 
     // 2) sample a histo h from f
-    TH1 &hGenDist_AS_dn_dptG_sampled = *getSampledH(fMCGenDist_dn_dptG, hGenDist_AS_inv);
+    TH1 &hGenDist_AS_dn_dptG_sampled = *utils_computational::GetSampledH(fMCGenDist_dn_dptG, hGenDist_AS_inv);
 
     // 3) transform it into inv. yield: h_inv = 1/pT h
     TH1 &hGenDist_sampled_inv = *divideTH1ByBinCenters(hGenDist_AS_dn_dptG_sampled, "", "hGenDist_sampled_inv");
@@ -96,7 +96,7 @@ void testTH1continuosEvaluationMethods()
     c1.cd(2);
     TH2 &hd21 = *new TH2F("hd1", ";pTG (GeV);ratio", 1, 0., 10., 1, .8, 1.2);
     hd21.Draw();
-    TH1 &hRatio = *divideTH1ByTH1(hExistingEval, hF_inv, "", "hRatio");
+    TH1 &hRatio = *utils_TH1::DivideTH1ByTH1(hExistingEval, hF_inv, "", "hRatio");
     hRatio.Draw("same");
     gPad->SetGridy();
     utils_plotting::SaveCanvasAs(c1, "pdf");

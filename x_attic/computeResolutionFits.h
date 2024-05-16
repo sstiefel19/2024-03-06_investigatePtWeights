@@ -156,7 +156,7 @@ computeResolutionFits(TH2 &theH2Resolution,
     std::vector<TF1 *> &vFits_ptG_i_dp_dr = *new std::vector<TF1 *>(ptBinMax + 1, static_cast<TF1 *>(nullptr));
 
     // TAxis          &lPtGAxis = *theH2Resolution.GetXaxis();
-    TAxis &lPtGAxis = *copyTAxisUpToPt(*theH2Resolution.GetXaxis(), 9.9);
+    TAxis &lPtGAxis = *utils_computational::CopyTAxisUpToPt(*theH2Resolution.GetXaxis(), 9.9);
     utils_fits::TPairFitsWAxis &lResult = *new utils_fits::TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
 
     // plot th2

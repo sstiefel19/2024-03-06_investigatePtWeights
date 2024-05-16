@@ -163,7 +163,7 @@ void investigatePtWeights_wResolutionEffects()
     /*
         more accurate way to get the genDist:
         h_inv -> h -> f
-        TH1 &hGenDist_AS_dn_dptG = *multiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
+        TH1 &hGenDist_AS_dn_dptG = *utils_TH1::MultiplyTH1ByBinCenters(*hGenDist_AS_inv, "", "hGenDist_AS_dn_dptG");
     */
     bool lGenDistTF1IsInvariant = false; // this initialized value is not used
     PtWeights &lPtWeights = *setupWeightsInstance("lPtWeights",

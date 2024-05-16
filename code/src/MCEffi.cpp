@@ -3,6 +3,8 @@
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_computational.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TH1.h"
 
 #include "TCanvas.h"
 #include "TF1.h"
@@ -120,9 +122,9 @@ TH1 &MCEffi::SampleMeasuredEffi_generic_1D(std::string const &theName,
                                            TAxis const &theAxis) const
 
 {
-    TH1 &hNum = *getSampledH(theNumF, theAxis);
-    TH1 &hDen = *getSampledH(theDenF, theAxis);
-    TH1 &hRatio = *divideTH1ByTH1(hNum, hDen, "", theName.data());
+    TH1 &hNum = *utils_computational::GetSampledH(theNumF, theAxis);
+    TH1 &hDen = *utils_computational::GetSampledH(theDenF, theAxis);
+    TH1 &hRatio = *utils_TH1::DivideTH1ByTH1(hNum, hDen, "", theName.data(), theName.data());
     delete &hNum;
     delete &hDen;
     return hRatio;
@@ -132,12 +134,12 @@ TH1 &MCEffi::SampleMeasuredEffi_generic_2D(std::string const &theName,
                                            TF2 const &theNumTF2_dN_dptG_dptR,
                                            TF1 const &theDenTF1_dN_dptR) const
 {
-    TH1 &hNum = sampleTH1FromTF2_projectionY(theName + "_num",
-                                             theNumTF2_dN_dptG_dptR,
-                                             axisPtR);
+    TH1 &hNum = utils_computational::SampleTH1FromTF2_projectionY(theName + "_num",
+                                                                  theNumTF2_dN_dptG_dptR,
+                                                                  axisPtR);
 
-    TH1 &hDen = *getSampledH(theDenTF1_dN_dptR, axisPtR);
-    TH1 &hRatio = *divideTH1ByTH1(hNum, hDen, "", theName.data());
+    TH1 &hDen = *utils_computational::GetSampledH(theDenTF1_dN_dptR, axisPtR);
+    TH1 &hRatio = *utils_TH1::DivideTH1ByTH1(hNum, hDen, "", theName.data(), theName.data());
     delete &hNum;
     delete &hDen;
     return hRatio;

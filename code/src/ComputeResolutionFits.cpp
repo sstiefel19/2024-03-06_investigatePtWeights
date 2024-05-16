@@ -49,7 +49,7 @@ ComputeResolutionFits::Compute()
     std::vector<TF1 *> &vFits_ptG_i_dp_dr = *new std::vector<TF1 *>(iPtBinMax + 1, static_cast<TF1 *>(nullptr));
 
     // TAxis          &lPtGAxis = *h2Resolution.GetXaxis();
-    TAxis &lPtGAxis = *copyTAxisUpToPt(*h2Resolution.GetXaxis(), 9.9);
+    TAxis &lPtGAxis = *utils_computational::CopyTAxisUpToPt(*h2Resolution.GetXaxis(), 9.9);
     utils_fits::TPairFitsWAxis &lResult = *new utils_fits::TPairFitsWAxis{vFits_ptG_i_dp_dr, lPtGAxis};
 
     // plot th2
@@ -123,9 +123,9 @@ ComputeResolutionFits::Compute()
         {
             auto drawAll = [&](TLegend *leg)
             {
-                drawAndAdd(h1r, "", kBlue, leg, "histo");
-                drawAndAdd(fitBN, "same", kRed, leg, "fit");
-                drawAndAdd(fitN, "same", kGreen, leg, "fit norm.");
+                utils_plotting::DrawAndAdd(h1r, "", kBlue, leg, "histo");
+                utils_plotting::DrawAndAdd(fitBN, "same", kRed, leg, "fit");
+                utils_plotting::DrawAndAdd(fitN, "same", kGreen, leg, "fit norm.");
                 leg->Draw("same");
             };
 

@@ -60,8 +60,8 @@ compareMeasuredEffis_TH1(std::string const &fID,
     auto &hEffi_AS_WW = *lMCEffi_AS.SampleMeasuredEffi_WW(kGreen);
     auto &hEffi_D_NW = lMCEffi_D.SampleMeasuredEffi_NW(kRed);
 
-    auto &hEffi_AS_NW_over_D = *divideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D");
-    auto &hEffi_AS_WW_over_D = *divideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D");
+    auto &hEffi_AS_NW_over_D = *utils_TH1::DivideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D");
+    auto &hEffi_AS_WW_over_D = *utils_TH1::DivideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D");
 
     auto utils_plotting::DrawAndAdd = [](TObject &o, TLegend *leg = nullptr)
     {
@@ -109,8 +109,8 @@ compareMeasuredEffis_TH1_New(std::string const &fID,
     auto &hEffi_AS_WW = *lMCEffi_AS.SampleMeasuredEffi_WW_2(kCyan);
     auto &hEffi_D_NW = lMCEffi_D.SampleMeasuredEffi_NW_2(kMagenta);
 
-    auto &hEffi_AS_NW_over_D = *divideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D_2");
-    auto &hEffi_AS_WW_over_D = *divideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D_2");
+    auto &hEffi_AS_NW_over_D = *utils_TH1::DivideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D_2");
+    auto &hEffi_AS_WW_over_D = *utils_TH1::DivideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D_2");
 
     auto utils_plotting::DrawAndAdd = [](TObject &o, TLegend *leg = nullptr)
     {

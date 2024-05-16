@@ -116,16 +116,16 @@ void investigateAccuracyPtWeights()
     //~ TF1* fEffi_d2 = new TF1("fEffi_d2",[&](double*x, double *p){ return myProviEffi->Derivative2(*x); }, 0, lXmax, 0);
     //~ utils_plotting::DrawAndAddToLegendF(fEffi_d2);
 
-    TH1 *hEffiWW_ASoverMB = divideTH1ByTH1(*lMCAS.GetMeasuredEffiWW(), *lMCMB.GetMeasuredEffiWW(), "", "hEffiWW_ASoverMB");
+    TH1 *hEffiWW_ASoverMB = utils_TH1::DivideTH1ByTH1(*lMCAS.GetMeasuredEffiWW(), *lMCMB.GetMeasuredEffiWW(), "", "hEffiWW_ASoverMB");
     utils_plotting::DrawAndAddToLegend(hEffiWW_ASoverMB);
 
-    TH1 *hEffiNW_ASoverMB = divideTH1ByTH1(*lMCAS.GetMeasuredEffiWoW(), *lMCMB.GetMeasuredEffiWoW(), "", "hEffiNW_ASoverMB");
+    TH1 *hEffiNW_ASoverMB = utils_TH1::DivideTH1ByTH1(*lMCAS.GetMeasuredEffiWoW(), *lMCMB.GetMeasuredEffiWoW(), "", "hEffiNW_ASoverMB");
 
-    TH1 *hASGenWWoverMBGenWW = divideTH1ByTH1(*lMCAS.hMCGenSampledWW, *lMCMB.hMCGenSampledWW, "", "hASGenWWoverMBGenWW");
+    TH1 *hASGenWWoverMBGenWW = utils_TH1::DivideTH1ByTH1(*lMCAS.hMCGenSampledWW, *lMCMB.hMCGenSampledWW, "", "hASGenWWoverMBGenWW");
     hASGenWWoverMBGenWW->SetLineColor(kRed);
     utils_plotting::DrawAndAddToLegend(hASGenWWoverMBGenWW);
 
-    //~ TH1* hEffiWWoverNW = divideTH1ByTH1(*lMCMB.GetMeasuredEffiWW(), *lMCMB.GetMeasuredEffiWoW());
+    //~ TH1* hEffiWWoverNW = utils_TH1::DivideTH1ByTH1(*lMCMB.GetMeasuredEffiWW(), *lMCMB.GetMeasuredEffiWoW());
 
     c1->SaveAs(Form("investigateAccuracyPtWeights_%s_%s.png", meson.data(), cent.data()));
 }
