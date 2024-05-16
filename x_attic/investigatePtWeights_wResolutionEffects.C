@@ -1,6 +1,6 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
 #include "/analysisSoftware/SupportingMacros/GCo.h"
-#include "/analysisSoftware/SupportingMacros/utils_sstiefel_2024.h"
+#include "/analysisSoftware/SupportingMacros/utils_files_strings.h"
 #include "/analysisSoftware/SupportingMacros/utils_TF1.h"
 
 #include "computeResolutionFits.h"
@@ -26,7 +26,7 @@
 TF1 &getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
 {
 
-    TH1 &hEffi = *(TH1 *)getObjectFromPathInFile(fname, "hMyTrueEffiA");
+    TH1 &hEffi = *(TH1 *)utils_files_strings::GetObjectFromPathInFile(fname, "hMyTrueEffiA");
     TCanvas *c3 = new TCanvas("c3", "c3", 2000, 1000);
     TH2 *hd21 = new TH2F("hd1", ";MC pT(GeV);dP/dptG", 1, 0., theXmax, 1, 1e-6, 2e-3);
     hd21->Draw();
@@ -37,10 +37,10 @@ TF1 &getMesonEfficiency(std::string fname, Double_t theXmax = 10.)
     hEffi.Fit(&fEffi, "N");
 
     auto &leg = *new TLegend();
-    drawAndAdd(hEffi, "same", kRed,
-               &leg, "", "l", true /* theDrawLegAlready */);
-    drawAndAdd(fEffi, "same", kBlue,
-               &leg, "", "l");
+    utils_plotting::DrawAndAdd(hEffi, "same", kRed,
+                               &leg, "", "l", true /* theDrawLegAlready */);
+    utils_plotting::DrawAndAdd(fEffi, "same", kBlue,
+                               &leg, "", "l");
     return fEffi;
 }
 
@@ -130,9 +130,9 @@ void investigatePtWeights_wResolutionEffects()
                                                     TAxis const &thePtGaxis)
     {
         // get Infos for Weights instance
-        TH1 &hGenDist_AS_inv = *(TH1 *)getObjectFromPathInFile(
+        TH1 &hGenDist_AS_inv = *(TH1 *)utils_files_strings::GetObjectFromPathInFile(
             fnameWeightsFile, meson + "_LHC24a1_5TeV_" + centAS);
-        TF1 &fGenData_dn_dptG_inv = *(TF1 *)getObjectFromPathInFile(
+        TF1 &fGenData_dn_dptG_inv = *(TF1 *)utils_files_strings::GetObjectFromPathInFile(
             fnameWeightsFile, meson + "_Data_5TeV_" + cent.substr(0, 6));
 
         return new PtWeights(theID,
@@ -172,7 +172,7 @@ void investigatePtWeights_wResolutionEffects()
 
     // 3 obtain the genDist that was fed to lPtWeights
     // make a copy since we need to fit the histogram which stupidly changes the histogram itself
-    TH1 &hGenDist_AS = *cloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
+    TH1 &hGenDist_AS = *utils_files_strings::CloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
 
     // 4) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS = fitGenDistHisto("auto",

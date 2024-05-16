@@ -1,7 +1,10 @@
 #pragma once
 #include "../include/ComputeResolutionFits.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+
+#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_computational.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 
 #include "TCanvas.h"
 #include "TF1.h"
@@ -54,7 +57,7 @@ ComputeResolutionFits::Compute()
     h2Resolution.GetXaxis()->SetRangeUser(0., 10.);
     h2Resolution.Draw("colz");
     gPad->SetLogz();
-    saveCanvasAs(cR1);
+    utils_plotting::SaveCanvasAs(cR1);
 
     std::cout << "ComputeResolutionFits::Compute(): iPtBinStart: " << iPtBinStart << ", iPtBinMax: " << iPtBinMax << " " << sFnameSaveFits.data() << std::endl;
 
@@ -89,7 +92,7 @@ ComputeResolutionFits::Compute()
     Double_t *lLastBinFoundParams = new Double_t[7];
     for (int i = iPtBinStart; i <= iPtBinMax; ++i)
     {
-        cout << i << endl;
+        std::cout << i << std::endl;
         Double_t ptMin = lPtGAxis.GetBinLowEdge(i);
         Double_t ptMax = lPtGAxis.GetBinLowEdge(i + 1);
 
@@ -144,7 +147,7 @@ ComputeResolutionFits::Compute()
             fitN.Write(Form("fitN_ptGbin_%d", i));
         }
     }
-    saveCanvasAs(cR);
+    utils_plotting::SaveCanvasAs(cR);
     if (lFile)
     {
         lPtGAxis.Write("lPtGAxis");

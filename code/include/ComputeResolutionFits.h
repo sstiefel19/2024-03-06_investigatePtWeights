@@ -1,8 +1,9 @@
 #pragma once
-
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
+
+class GCo;
+
+#include "TH2.h"
 
 class TAxis;
 class TCanvas;

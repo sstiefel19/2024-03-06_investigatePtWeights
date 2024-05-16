@@ -1,5 +1,5 @@
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
-#include "/2024/2024-03-06_investigatePtWeights/code/include/InvPtW_main.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
+#include "/2024/2024-03-06_investigatePtWeights/code/include/InvPtW.h"
 #include "TROOT.h"
 
 void run_InvPtW_main()
@@ -14,9 +14,8 @@ void run_InvPtW_main()
                                   "_0d200009ab770c00amd0404000_0152101500000000",
                                   true /* _keepFileOpen */);
 
-    
     printf("run_InvPtW_main.C::run_InvPtW_main(): calling InvPtW_main::InvPtW()\n");
-    InvPtW_main &lInvPtW_main = *new InvPtW_main(
+    InvPtW &lInvPtW_main = *new InvPtW(
         "lInvPtW_main",
         "input_root/input_for_effi-fit_101.root",
         "/2024/2024-01-29_determinePtWeights/newUploadedFiles/MCSpectraInputPbPb_Stephan_it0b_with24a1.root",
@@ -25,11 +24,6 @@ void run_InvPtW_main()
         lGCo_AS,
         lNR);
 
-    lInvPtW_main.Main();
-    
-    MCEffi &lEffi_data = lInvPtW_main.GetMCEffi_D();
-    // MCEffi  &lEffi_AS_inv = lInvPtW_main.GetMCEffi_AS_inv();
-    // MCEffi &lEffi_AS_special = lInvPtW_main.GetMCEffi_AS_special();
     /*
         what do I wanna know?
         in data it holds:
@@ -51,9 +45,7 @@ void run_InvPtW_main()
 
             * x: Main(true), y: Main(false)
     */
-
-    // notes:
-    /*
-        lInvPtW_main: constructor sets all information such that an instance can be called with both weights options
-    */
+    // Initialize && PlotAll
+    lInvPtW_main.Main();
+    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareAllMeasuredEfficiencies());
 }

@@ -1,4 +1,4 @@
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 
 #include <iostream>
 #include <string.h>
@@ -56,7 +56,7 @@ void testTH1continuosEvaluationMethods()
     auto leg = getLegend();
 
     // 0) get h_inv from weights file
-    TH1 &hGenDist_AS_inv = *(TH1 *)getObjectFromPathInFile(
+    TH1 &hGenDist_AS_inv = *(TH1 *)utils_files_strings::GetObjectFromPathInFile(
         fnameWeightsFile, meson + "_LHC24a1_5TeV_" + centAS);
 
     // h_inv -> h
@@ -72,16 +72,16 @@ void testTH1continuosEvaluationMethods()
     // 3) transform it into inv. yield: h_inv = 1/pT h
     TH1 &hGenDist_sampled_inv = *divideTH1ByBinCenters(hGenDist_AS_dn_dptG_sampled, "", "hGenDist_sampled_inv");
 
-    drawAndAdd(hGenDist_AS_inv, "same l", kBlack, leg);
-    drawAndAdd(hGenDist_AS_dn_dptG, "same l", kBlue, leg);
-    drawAndAdd(fMCGenDist_dn_dptG, "same l", kRed, leg);
-    drawAndAdd(hGenDist_AS_dn_dptG_sampled, "same l", kGreen, leg);
-    drawAndAdd(hGenDist_sampled_inv, "same l", kOrange, leg);
+    utils_plotting::DrawAndAdd(hGenDist_AS_inv, "same l", kBlack, leg);
+    utils_plotting::DrawAndAdd(hGenDist_AS_dn_dptG, "same l", kBlue, leg);
+    utils_plotting::DrawAndAdd(fMCGenDist_dn_dptG, "same l", kRed, leg);
+    utils_plotting::DrawAndAdd(hGenDist_AS_dn_dptG_sampled, "same l", kGreen, leg);
+    utils_plotting::DrawAndAdd(hGenDist_sampled_inv, "same l", kOrange, leg);
 
     // 4) use TH1::Interpolate at many points along h_inv
     // use a fine binned histogram to move in small discrete steps along the x-axis
     TH1 &hExistingEval = *new TH1F("hExistingEval", ";pT (GeV);1/pT dN/dpT", 1000, 0., 10.);
-    TH1 &hF_inv = *cloneTH1(hExistingEval, "", "hF_inv", "hF_inv");
+    TH1 &hF_inv = *utils_files_strings::CloneTH1(hExistingEval, "", "hF_inv", "hF_inv");
 
     for (int i = 1; i <= hExistingEval.GetNbinsX(); i++)
     {
@@ -89,8 +89,8 @@ void testTH1continuosEvaluationMethods()
         hExistingEval.SetBinContent(i, hGenDist_sampled_inv.Interpolate(x));
         hF_inv.SetBinContent(i, x ? fMCGenDist_dn_dptG.Eval(x) / x : 0.);
     }
-    drawAndAdd(hExistingEval, "same l", kMagenta, leg);
-    drawAndAdd(hF_inv, "same l", kCyan, leg);
+    utils_plotting::DrawAndAdd(hExistingEval, "same l", kMagenta, leg);
+    utils_plotting::DrawAndAdd(hF_inv, "same l", kCyan, leg);
 
     // 5) compare to the same points on f
     c1.cd(2);
@@ -99,5 +99,5 @@ void testTH1continuosEvaluationMethods()
     TH1 &hRatio = *divideTH1ByTH1(hExistingEval, hF_inv, "", "hRatio");
     hRatio.Draw("same");
     gPad->SetGridy();
-    saveCanvasAs(c1, "pdf");
+    utils_plotting::SaveCanvasAs(c1, "pdf");
 }

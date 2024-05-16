@@ -1,7 +1,8 @@
 #include "../include/MCEffi.h"
 
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
 
 #include "TCanvas.h"
 #include "TF1.h"
@@ -93,6 +94,25 @@ TH1 const *MCEffi::GetMeasuredEffi_WW()
     return hMeasuredEffi_WW_2_opt;
 }
 
+TH1 &MCEffi::GetMeasuredEffi_NW_clone()
+{
+    if (hMeasuredEffi_NW_2)
+    {
+        return *utils_files_strings::CloneTH1(*hMeasuredEffi_NW_2);
+    }
+    return *utils_files_strings::CloneTH1(SampleMeasuredEffi_NW_2());
+}
+
+TH1 *MCEffi::GetMeasuredEffi_WW_clone()
+{
+    if (hMeasuredEffi_WW_2_opt)
+    {
+        return utils_files_strings::CloneTH1(*hMeasuredEffi_WW_2_opt);
+    }
+    TH1 *h = SampleMeasuredEffi_WW_2();
+    return h ? utils_files_strings::CloneTH1(*h) : nullptr;
+}
+
 // ================== private member functions =======================
 TH1 &MCEffi::SampleMeasuredEffi_generic_1D(std::string const &theName,
                                            TF1 const &theNumF,
@@ -177,5 +197,5 @@ void MCEffi::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, "")*/)
     {
         theLeg->Draw("same");
     }
-    saveCanvasAs(*c0);
+    utils_plotting::SaveCanvasAs(*c0);
 }

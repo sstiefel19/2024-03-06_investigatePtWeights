@@ -11,7 +11,7 @@ compareMeasuredEffis_TF1(std::string const &fID,
     auto &fEffi_AS_NW_over_D = *getTF1Division(fID + "_fEffi_AS_NW_over_D", &fEffi_AS_NW, &fEffi_D_NW);
     auto &fEffi_AS_WW_over_D = *getTF1Division(fID + "_fEffi_AS_WW_over_D", &fEffi_AS_WW, &fEffi_D_NW);
 
-    auto drawAndAdd = [](TObject &o, TLegend *leg = nullptr)
+    auto utils_plotting::DrawAndAdd = [](TObject &o, TLegend *leg = nullptr)
     {
         o.Draw("same");
         if (leg)
@@ -28,9 +28,9 @@ compareMeasuredEffis_TF1(std::string const &fID,
     hd21->Draw();
 
     auto leg = new TLegend(.73, .64, .90, .90, "");
-    drawAndAdd(fEffi_AS_NW, leg);
-    drawAndAdd(fEffi_AS_WW, leg);
-    drawAndAdd(fEffi_D_NW, leg);
+    utils_plotting::DrawAndAdd(fEffi_AS_NW, leg);
+    utils_plotting::DrawAndAdd(fEffi_AS_WW, leg);
+    utils_plotting::DrawAndAdd(fEffi_D_NW, leg);
     leg->Draw("same");
 
     c1.cd(2);
@@ -42,11 +42,11 @@ compareMeasuredEffis_TF1(std::string const &fID,
     hd22->Draw();
 
     auto leg2 = new TLegend();
-    drawAndAdd(fEffi_AS_NW_over_D);
-    drawAndAdd(fEffi_AS_WW_over_D);
+    utils_plotting::DrawAndAdd(fEffi_AS_NW_over_D);
+    utils_plotting::DrawAndAdd(fEffi_AS_WW_over_D);
     leg2->Draw("same");
 
-    saveCanvasAs(c1);
+    utils_plotting::SaveCanvasAs(c1);
     return c1;
 }
 
@@ -63,7 +63,7 @@ compareMeasuredEffis_TH1(std::string const &fID,
     auto &hEffi_AS_NW_over_D = *divideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D");
     auto &hEffi_AS_WW_over_D = *divideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D");
 
-    auto drawAndAdd = [](TObject &o, TLegend *leg = nullptr)
+    auto utils_plotting::DrawAndAdd = [](TObject &o, TLegend *leg = nullptr)
     {
         o.Draw("same");
         if (leg)
@@ -80,9 +80,9 @@ compareMeasuredEffis_TH1(std::string const &fID,
     hd21->Draw();
 
     auto leg = new TLegend(.73, .64, .90, .90, "");
-    drawAndAdd(hEffi_AS_NW, leg);
-    drawAndAdd(hEffi_AS_WW, leg);
-    drawAndAdd(hEffi_D_NW, leg);
+    utils_plotting::DrawAndAdd(hEffi_AS_NW, leg);
+    utils_plotting::DrawAndAdd(hEffi_AS_WW, leg);
+    utils_plotting::DrawAndAdd(hEffi_D_NW, leg);
     leg->Draw("same");
 
     c1.cd(2);
@@ -91,11 +91,11 @@ compareMeasuredEffis_TH1(std::string const &fID,
     hd22->Draw();
 
     auto leg2 = new TLegend();
-    drawAndAdd(hEffi_AS_NW_over_D);
-    drawAndAdd(hEffi_AS_WW_over_D);
+    utils_plotting::DrawAndAdd(hEffi_AS_NW_over_D);
+    utils_plotting::DrawAndAdd(hEffi_AS_WW_over_D);
     //~ leg2->Draw("same");
 
-    saveCanvasAs(c1);
+    utils_plotting::SaveCanvasAs(c1);
     return c1;
 }
 
@@ -112,7 +112,7 @@ compareMeasuredEffis_TH1_New(std::string const &fID,
     auto &hEffi_AS_NW_over_D = *divideTH1ByTH1(hEffi_AS_NW, hEffi_D_NW, "", "hEffi_AS_NW_over_D_2");
     auto &hEffi_AS_WW_over_D = *divideTH1ByTH1(hEffi_AS_WW, hEffi_D_NW, "", "hEffi_AS_WW_over_D_2");
 
-    auto drawAndAdd = [](TObject &o, TLegend *leg = nullptr)
+    auto utils_plotting::DrawAndAdd = [](TObject &o, TLegend *leg = nullptr)
     {
         o.Draw("same");
         if (leg)
@@ -129,9 +129,9 @@ compareMeasuredEffis_TH1_New(std::string const &fID,
     hd21->Draw();
 
     auto leg = new TLegend(.73, .64, .90, .90, "");
-    drawAndAdd(hEffi_AS_NW, leg);
-    drawAndAdd(hEffi_AS_WW, leg);
-    drawAndAdd(hEffi_D_NW, leg);
+    utils_plotting::DrawAndAdd(hEffi_AS_NW, leg);
+    utils_plotting::DrawAndAdd(hEffi_AS_WW, leg);
+    utils_plotting::DrawAndAdd(hEffi_D_NW, leg);
     leg->Draw("same");
 
     c1.cd(2);
@@ -140,12 +140,10 @@ compareMeasuredEffis_TH1_New(std::string const &fID,
     hd22->Draw();
 
     auto leg2 = new TLegend();
-    drawAndAdd(hEffi_AS_NW_over_D);
-    drawAndAdd(hEffi_AS_WW_over_D);
+    utils_plotting::DrawAndAdd(hEffi_AS_NW_over_D);
+    utils_plotting::DrawAndAdd(hEffi_AS_WW_over_D);
     //~ leg2->Draw("same");
 
-    saveCanvasAs(c1);
+    utils_plotting::SaveCanvasAs(c1);
     return c1;
 }
-
-

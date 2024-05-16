@@ -57,7 +57,8 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "variant": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "compileAllLibs_InvPtW_main.C": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/clang++",
     "C_Cpp.errorSquiggles": "enabled"

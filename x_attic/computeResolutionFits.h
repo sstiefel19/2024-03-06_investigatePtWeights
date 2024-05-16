@@ -58,7 +58,7 @@ void drawAllFitsOnTop(std::vector<TF1 *> &theFits)
         }
     }
     leg->Draw("same");
-    saveCanvasAs(*c);
+    utils_plotting::SaveCanvasAs(*c);
 }
 
 // fit, normalized fit
@@ -164,7 +164,7 @@ computeResolutionFits(TH2 &theH2Resolution,
     theH2Resolution.GetXaxis()->SetRangeUser(0., 10.);
     theH2Resolution.Draw("colz");
     gPad->SetLogz();
-    saveCanvasAs(cR1);
+    utils_plotting::SaveCanvasAs(cR1);
 
     // first see if there is a file
     bool lFile = sFnameSaveFits.size();
@@ -197,7 +197,7 @@ computeResolutionFits(TH2 &theH2Resolution,
     Double_t *lLastBinFoundParams = new Double_t[7];
     for (int i = binStart; i <= ptBinMax; ++i)
     {
-        cout << i << endl;
+        std::cout << i << std::endl;
         Double_t ptMin = lPtGAxis.GetBinLowEdge(i);
         Double_t ptMax = lPtGAxis.GetBinLowEdge(i + 1);
 
@@ -227,9 +227,9 @@ computeResolutionFits(TH2 &theH2Resolution,
         {
             auto drawAll = [&](TLegend *leg)
             {
-                drawAndAdd(h1r, "", kBlue, leg, "histo");
-                drawAndAdd(fitBN, "same", kRed, leg, "fit");
-                drawAndAdd(fitN, "same", kGreen, leg, "fit norm.");
+                utils_plotting::DrawAndAdd(h1r, "", kBlue, leg, "histo");
+                utils_plotting::DrawAndAdd(fitBN, "same", kRed, leg, "fit");
+                utils_plotting::DrawAndAdd(fitN, "same", kGreen, leg, "fit norm.");
                 leg->Draw("same");
             };
 
@@ -251,7 +251,7 @@ computeResolutionFits(TH2 &theH2Resolution,
             fitN.Write(Form("fitN_ptGbin_%d", i));
         }
     }
-    saveCanvasAs(cR);
+    utils_plotting::SaveCanvasAs(cR);
     if (lFile)
     {
         lPtGAxis.Write("lPtGAxis");

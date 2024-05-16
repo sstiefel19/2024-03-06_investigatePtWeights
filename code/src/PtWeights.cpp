@@ -1,5 +1,5 @@
 #include "../include/PtWeights.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_sstiefel_2024.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 
 #include "TF1.h"
 #include "TF2.h"
@@ -15,13 +15,13 @@ PtWeights::PtWeights(std::string const &_id,
       vAllDrawableObjects(
           theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       bComputeInInvariantForm(_bComputeInInvariantForm),
-      hMCGen_dn_dptG(*cloneTH1(_hMCGen_dn_dptG,
-                               "",
-                               (id + "_hMCGen_dn_dptG").data())),
+      hMCGen_dn_dptG(*utils_files_strings::CloneTH1(_hMCGen_dn_dptG,
+                                                    "",
+                                                    (id + "_hMCGen_dn_dptG").data())),
       fTrgtDist_dn_dptG(
-          dynamic_cast<TF1 &>(*cloneTNamedObject(_fTrgtDist_dn_dptG,
-                                                 "",
-                                                 (id + "_fTrgtDist_dn_dptG").data()))),
+          dynamic_cast<TF1 &>(*utils_files_strings::CloneTNamedObject(_fTrgtDist_dn_dptG,
+                                                                      "",
+                                                                      (id + "_fTrgtDist_dn_dptG").data()))),
       axisPtG(_axisPtG),
       fTF1(*new TF1((id + "_PtWeightTF1").data(),
                     this, &PtWeights::GetPtWeight,

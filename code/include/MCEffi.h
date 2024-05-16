@@ -42,6 +42,9 @@ public:
     std::string const &GetID() const { return sID; }
     TH1 const &GetMeasuredEffi_NW();
     TH1 const *GetMeasuredEffi_WW();
+    TH1  &GetMeasuredEffi_NW_clone();
+    TH1  *GetMeasuredEffi_WW_clone();
+
     void PlotAll(TLegend *theLeg = nullptr);
 
 private:
