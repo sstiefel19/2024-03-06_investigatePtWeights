@@ -21,7 +21,8 @@ public:
                           int thePtBinMax,
                           int theNR,
                           bool theDrawAllFitsOverlayed,
-                          bool thePlotSingles);
+                          bool thePlotSingles,
+                          std::vector<TObject *> *theVAllDrawableObjects);
 
     utils_fits::TPairFitsWAxis &
     Compute();
@@ -35,6 +36,7 @@ public:
 
 private:
     std::string const sID;
+    std::vector<TObject *> *vAllDrawableObjects;
     GCo const &gCo_h2Res; // from above
     TH2F h2Resolution;
     int const iPtBinStart = 1;

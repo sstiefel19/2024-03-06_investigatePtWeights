@@ -16,7 +16,8 @@ public:
                       TF1 &_fGen_dn_dptG,
                       TF1 &_fEffi_dp_dptG,
                       utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-                      PtWeights *_tPtWeights = nullptr);
+                      PtWeights *_tPtWeights = nullptr,
+                      std::vector<TObject *> *theVAllDrawableObjects = nullptr);
 
     ~dN_dptR_integrand();
 
@@ -32,6 +33,7 @@ public:
 private:
     // defining data members
     std::string id;
+    std::vector<TObject *> *vAllDrawableObjects;
     TF1 &fGen_dn_dptG;                     // the distribution of generated particles
     TF1 &fEffi_dp_dptG;                    // prob that a meson generated with ptG gets reconstructed (no matter with which ptR)
     std::vector<TF1 *> &vFits_ptG_i_dp_dr; // for every bin i in ptG: prob dist that the meson gets smeared with r =  (ptR - ptG) / ptG . Normalized to 1

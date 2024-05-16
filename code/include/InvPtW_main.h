@@ -67,6 +67,8 @@ public:
     std::string const &GetID() const { return sID; }
     bool IsInitialized() const { return bInitialized; }
 
+    void PlotAll();
+
 private:
     // member functions
 
@@ -116,4 +118,7 @@ private:
 
     // accounting
     bool bInitialized;
+    std::vector<MCEffi *> vAllMCEffis;
+
+    std::vector<TObject *> vAllDrawableObjects;
 };

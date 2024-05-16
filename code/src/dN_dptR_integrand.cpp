@@ -5,8 +5,12 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
                                      TF1 &_fGen_dn_dptG,
                                      TF1 &_fEffi_dp_dptG,
                                      utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-                                     PtWeights *_tPtWeights /*= nullptr*/)
+                                     PtWeights *_tPtWeights /*= nullptr*/,
+                                     std::vector<TObject *> *theVAllDrawableObjects /*= nullptr*/)
     : id(_id),
+      vAllDrawableObjects(
+          theVAllDrawableObjects ? theVAllDrawableObjects
+                                 : new std::vector<TObject *>()),
       fGen_dn_dptG(_fGen_dn_dptG),
       fEffi_dp_dptG(_fEffi_dp_dptG),
       vFits_ptG_i_dp_dr(_vFits_ptG_i_dp_dr_wAxis.first),
@@ -15,6 +19,12 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
       fTF1(GetNewTF1(0. /*ptR*/)),
       fTF2(GetNewTF2_dN_dptG_dptR())
 {
+    vAllDrawableObjects->insert(
+        vAllDrawableObjects->end(),
+        std::initializer_list<TObject *>({&fGen_dn_dptG,
+                                          &fEffi_dp_dptG,
+                                          &fTF1,
+                                          &fTF2}));
     printf("dN_dptR_integrand::dN_dptR_integrand(): created instance %s %s ptWeights.\n",
            id.data(), tPtWeights_opt ? "with" : "without");
     printf("dN_dptR_integrand::dN_dptR_integrand(): id: %s, axisPtG: xmin: %f, xmax: %f, nBins: %d\n",
@@ -93,6 +103,7 @@ TF1 &dN_dptR_integrand::GetNewTF1(double ptR) const
                        axisPtG.GetXmin(), axisPtG.GetXmax(), 1,
                        "dN_dptR_integrand", "Evaluate");
     f.SetParameter(0, ptR);
+    vAllDrawableObjects->push_back(&f);
     return f;
 }
 
@@ -104,5 +115,6 @@ TF2 &dN_dptR_integrand::GetNewTF2_dN_dptG_dptR() const
                        axisPtG.GetXmin(), axisPtG.GetXmax(),
                        0,
                        "dN_dptR_integrand", "Evaluate_2D");
+    vAllDrawableObjects->push_back(&f);
     return f;
 }

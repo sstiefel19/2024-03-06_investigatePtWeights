@@ -6,13 +6,16 @@ void run_InvPtW_main()
 {
     // gROOT->ProcessLine(".L compileAllLibs.C");
 
+    printf("run_InvPtW_main.C::run_InvPtW_main(): Start\n");
     int lNR = 4;
-    GCo const lGCo_AS("/trains/2024-02-26_allMCs_ptw_0b/LHC24a1/GCo_997.root",
-                      "GammaConvV1_997/",
-                      "10130023",
-                      "_0d200009ab770c00amd0404000_0152101500000000",
-                      false /* _keepFileOpen */);
+    GCo const &lGCo_AS = *new GCo("/trains/2024-02-26_allMCs_ptw_0b/LHC24a1/GCo_997.root",
+                                  "GammaConvV1_997/",
+                                  "10130023",
+                                  "_0d200009ab770c00amd0404000_0152101500000000",
+                                  true /* _keepFileOpen */);
 
+    
+    printf("run_InvPtW_main.C::run_InvPtW_main(): calling InvPtW_main::InvPtW()\n");
     InvPtW_main &lInvPtW_main = *new InvPtW_main(
         "lInvPtW_main",
         "input_root/input_for_effi-fit_101.root",
@@ -22,15 +25,11 @@ void run_InvPtW_main()
         lGCo_AS,
         lNR);
 
-    lInvPtW_main.Initialize();
-    // lInvPtW_main.Main();
-
+    lInvPtW_main.Main();
+    
     MCEffi &lEffi_data = lInvPtW_main.GetMCEffi_D();
     // MCEffi  &lEffi_AS_inv = lInvPtW_main.GetMCEffi_AS_inv();
     // MCEffi &lEffi_AS_special = lInvPtW_main.GetMCEffi_AS_special();
-
-    lEffi_data.PlotAll();
-
     /*
         what do I wanna know?
         in data it holds:

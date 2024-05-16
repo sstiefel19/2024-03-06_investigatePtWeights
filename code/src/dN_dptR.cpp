@@ -9,8 +9,11 @@ dN_dptR::dN_dptR(std::string const &_id,
                  TF1 &_fGen_dn_dptG,
                  TF1 &_fEffi_dp_dptG,
                  utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-                 PtWeights *_tPtWeights /*= nullptr*/)
+                 PtWeights *_tPtWeights /*= nullptr*/,
+                 std::vector<TObject *> *theVAllDrawableObjects /*= nullptr*/)
     : id(_id),
+      vAllDrawableObjects(
+          theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       tIntegrand(_id + "_integrand",
                  _fGen_dn_dptG,
                  _fEffi_dp_dptG,

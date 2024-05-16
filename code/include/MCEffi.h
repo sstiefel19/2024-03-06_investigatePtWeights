@@ -23,9 +23,9 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 class TLegend;
-
 
 class MCEffi
 {
@@ -35,7 +35,8 @@ public:
            TF1 &_fEffi_dp_dptG,
            utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
            TAxis &_axisPtR,
-           PtWeights *_tPtWeights = nullptr);
+           PtWeights *_tPtWeights,
+           std::vector<TObject *> *theVAllDrawableObjects);
 
 public:
     std::string const &GetID() const { return sID; }
@@ -46,6 +47,7 @@ public:
 private:
     // intrinsic data members
     std::string sID;
+    std::vector<TObject *> *vAllDrawableObjects;
     TAxis axisPtR;
     // defining since it holds the pt-weights instance
     dN_dptR tdN_dptR_NW;      // to simulate the numbers of reconstructed particles without pt-weights
@@ -54,9 +56,6 @@ private:
     // expressive members
     TH1 *hMeasuredEffi_NW_2;
     TH1 *hMeasuredEffi_WW_2_opt; // optional
-
-    // list of references is more complicated
-    std::list<TObject const *> tListReadyForDrawing;
 
     // private member functions
     // helper functions - move out?

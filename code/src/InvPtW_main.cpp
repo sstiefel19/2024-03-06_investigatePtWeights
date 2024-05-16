@@ -43,13 +43,15 @@ InvPtW_main::InvPtW_main(std::string const &theID,
 
       // derive
       // 2) create resolution parametrizations
+      vAllDrawableObjects(),
       tResolutionFits(ComputeResolutionFits(
           tGCo_forH2Resolution,
           1,  // thePtBinStart
           31, // thePtBinMax
           theNR /*theNR*/,
           true, // theDrawAllFitsOverlayed
-          false /*thePlotSingles*/)),
+          false /*thePlotSingles*/,
+          &vAllDrawableObjects)),
 
       fTargetGenData_dn_dptG_inv(*(TF1 *)getObjectFromPathInFile(
           sFnameWeightsFile,
@@ -63,6 +65,7 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       hGenDist_dn_dptG(*(TH1D *)multiplyTH1ByBinCenters(hGenDist_dn_dptG_inv,
                                                         "",
                                                         "hGenDist_dn_dptG")),
+
       fTargetGenData_dn_dptG(utils_TF1::MultiplyTF1ByX(sID + "_fTargetGenData_dn_dptG",
                                                        fTargetGenData_dn_dptG_inv)),
 
@@ -75,8 +78,15 @@ InvPtW_main::InvPtW_main(std::string const &theID,
       tMCEffi_D(nullptr),
       tMCEffi_AS_inv(nullptr),
       tMCEffi_AS_special(nullptr),
-      bInitialized(false)
+      bInitialized(false),
+      vAllMCEffis()
 {
+    vAllDrawableObjects.insert(vAllDrawableObjects.end(),
+                               {&fTargetGenData_dn_dptG_inv,
+                                &fTargetGenData_dn_dptG,
+                                &hGenDist_dn_dptG_inv,
+                                &hGenDist_dn_dptG});
+
     printf("invPtWeights_class::invPtWeights_class(): created instance:\n"
            "\tsID: %s\n"
            "\tsFnameFitOverallEfficiency: %s\n"
@@ -105,7 +115,11 @@ InvPtW_main::InvPtW_main(std::string const &theID,
 // ===================== public member functions =================================
 int InvPtW_main::Initialize()
 {
-    printf("\n\n\nint InvPtW_main::Initialize(): instance %s: starting to compile all parametrizations.\n", sID.data());
+    if (bInitialized)
+    {
+        printf("int InvPtW_main::Initialize(): instance %s: already initialized. returning.\n", sID.data());
+    }
+    printf("\n\n\nint InvPtW_main::Initialize(): instance %s: starting to initialize.\n", sID.data());
 
     // 1) fit overall efficiency
     fEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
@@ -130,7 +144,10 @@ int InvPtW_main::Initialize()
                            fTargetGenData_dn_dptG,
                            *fEffiAtAll_dp_dptG,
                            *tPair_vFits_ptG_i_dp_dr_Axis,
-                           *aAxisPtG);
+                           *aAxisPtG,
+                           nullptr,
+                           &vAllDrawableObjects);
+    vAllMCEffis.push_back(tMCEffi_D);
 
     tMCEffi_AS_inv = new MCEffi(sID + "_lMCEffi_AS",
                                 *fGenDistTF1_dn_dptG_AS_inv,
@@ -138,19 +155,37 @@ int InvPtW_main::Initialize()
                                 *tPair_vFits_ptG_i_dp_dr_Axis,
                                 *aAxisPtG,
                                 &CreatePtWeightsInstance(sID + "_lPtWeights",
-                                                         true));
+                                                         true),
+                                &vAllDrawableObjects);
+    vAllMCEffis.push_back(tMCEffi_AS_inv);
 
-    tMCEffi_AS_special = new MCEffi(sID + "_lMCEffi_AS",
+    tMCEffi_AS_special = new MCEffi(sID + "_lMCEffi_AS_special",
                                     *fGenDistTF1_dn_dptG_AS,
                                     *fEffiAtAll_dp_dptG,
                                     *tPair_vFits_ptG_i_dp_dr_Axis,
                                     *aAxisPtG,
                                     &CreatePtWeightsInstance(sID + "_lPtWeights",
-                                                             false));
+                                                             false),
+                                    &vAllDrawableObjects);
+    vAllMCEffis.push_back(tMCEffi_AS_special);
 
     printf("int InvPtW_main::Initialize(): instance %s: done initializing.\n\n\n", sID.data());
     bInitialized = true;
     return 1;
+}
+
+void InvPtW_main::PlotAll()
+{
+    if (!bInitialized)
+    {
+        printf("int InvPtW_main::PlotAll(): instance %s: not initialized. Returning.\n", sID.data());
+        return;
+    }
+
+    for (auto &lMCEffi : vAllMCEffis)
+    {
+        lMCEffi->PlotAll();
+    }
 }
 
 int InvPtW_main::Main()
@@ -161,9 +196,7 @@ int InvPtW_main::Main()
         Initialize();
     }
 
-    // // 4) plot results
-    // tMCEffi_D->PlotAll();
-    // tMCEffi_AS_inv->PlotAll();
+    PlotAll();
 
     return 0;
 }

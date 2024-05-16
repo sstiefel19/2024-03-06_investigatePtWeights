@@ -9,13 +9,17 @@
 #include "TH2.h"
 #include "TLegend.h"
 
-ComputeResolutionFits::ComputeResolutionFits(GCo const &theGCo_h2Res,
-                                             int thePtBinStart,
-                                             int thePtBinMax,
-                                             int theNR,
-                                             bool theDrawAllFitsOverlayed,
-                                             bool thePlotSingles)
+ComputeResolutionFits::ComputeResolutionFits(
+    GCo const &theGCo_h2Res,
+    int thePtBinStart,
+    int thePtBinMax,
+    int theNR,
+    bool theDrawAllFitsOverlayed,
+    bool thePlotSingles,
+    std::vector<TObject *> *theVAllDrawableObjects /*= nullptr*/)
     : gCo_h2Res(theGCo_h2Res),
+      vAllDrawableObjects(
+          theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       h2Resolution(*(TH2F *)gCo_h2Res.GetFromTrue("ESD_TruePrimaryPi0_MCPt_ResolPt")),
       iPtBinStart(thePtBinStart),
       iPtBinMax(thePtBinMax),

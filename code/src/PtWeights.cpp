@@ -9,8 +9,11 @@ PtWeights::PtWeights(std::string const &_id,
                      bool _bComputeInInvariantForm,
                      TH1 const &_hMCGen_dn_dptG,
                      TF1 const &_fTrgtDist_dn_dptG,
-                     TAxis const &_axisPtG)
+                     TAxis const &_axisPtG,
+                     std::vector<TObject *> *theVAllDrawableObjects /*= nullptr*/)
     : id(_id),
+      vAllDrawableObjects(
+          theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       bComputeInInvariantForm(_bComputeInInvariantForm),
       hMCGen_dn_dptG(*cloneTH1(_hMCGen_dn_dptG,
                                "",
@@ -26,6 +29,8 @@ PtWeights::PtWeights(std::string const &_id,
 {
     fTrgtDist_dn_dptG.SetRange(axisPtG.GetXmin(), axisPtG.GetXmax());
 
+    vAllDrawableObjects->insert(vAllDrawableObjects->end(),
+                                {&hMCGen_dn_dptG, &fTrgtDist_dn_dptG, &fTF1});
     printf("PtWeights::PtWeights(): created instance:\n"
            "\tid: %s\n"
            "\tbComputeInInvariantForm: %d\n"
@@ -37,15 +42,15 @@ PtWeights::PtWeights(std::string const &_id,
            axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
 }
 
-    PtWeights::PtWeights(std::string const &_fID)
+PtWeights::PtWeights(std::string const &_fID)
     : id(_fID + "_dummyConstructor"),
       bComputeInInvariantForm(false),
-      hMCGen_dn_dptG(* new TH1D((id + "_hMCGen_dn_dptG").data(), "dummy", 1, 0., 1.)),
-      fTrgtDist_dn_dptG(* new TF1((id + "_fTrgtDist_dn_dptG").data(), "1.", 0., 1.)),
+      hMCGen_dn_dptG(*new TH1D((id + "_hMCGen_dn_dptG").data(), "dummy", 1, 0., 1.)),
+      fTrgtDist_dn_dptG(*new TF1((id + "_fTrgtDist_dn_dptG").data(), "1.", 0., 1.)),
       axisPtG(1, 0., 1.),
-      fTF1((* new TF1((id + "fTF1").data(), "1.", 0., 1.)))
-    {
-        printf("PtWeights::PtWeights(): created dummy instance:\n"
+      fTF1((*new TF1((id + "fTF1").data(), "1.", 0., 1.)))
+{
+    printf("PtWeights::PtWeights(): created dummy instance:\n"
            "\tid: %s\n"
            "\tbComputeInInvariantForm: %d\n"
            "\thMCGen_dn_dptG: %s\n"
@@ -54,8 +59,7 @@ PtWeights::PtWeights(std::string const &_id,
            id.data(), bComputeInInvariantForm,
            hMCGen_dn_dptG.GetName(), fTrgtDist_dn_dptG.GetName(),
            axisPtG.GetNbins(), axisPtG.GetXmin(), axisPtG.GetXmax());
-
-    }
+}
 
 double PtWeights::GetPtWeight(double *ptG, double *) const
 {

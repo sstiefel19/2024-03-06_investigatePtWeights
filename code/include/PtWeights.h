@@ -5,6 +5,8 @@ class TF1;
 class TF2;
 class TH1;
 
+#include "vector"
+
 class PtWeights
 {
 public:
@@ -12,7 +14,8 @@ public:
               bool _bComputeInInvariantForm,
               TH1 const &_hMCGen_dn_dptG,
               TF1 const &_fTrgtDist_dn_dptG,
-              TAxis const &_axisPtG);
+              TAxis const &_axisPtG,
+              std::vector<TObject *> *theVAllDrawableObjects = nullptr);
     PtWeights(std::string const &_fID);
 
     TAxis const &GetAxisPtG() const { return axisPtG; }
@@ -26,6 +29,7 @@ public:
 
 private:
     std::string id;
+    std::vector<TObject *> *vAllDrawableObjects;
     bool bComputeInInvariantForm;
 
     // create on heap so I can work with TH1 plus I don need to worry about lifetimes

@@ -15,7 +15,8 @@ public:
             TF1 &_fGen_dn_dptG,
             TF1 &_fEffi_dp_dptG,
             utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
-            PtWeights *_fPtWeights = nullptr);
+            PtWeights *_fPtWeights = nullptr,
+            std::vector<TObject *> *theVAllDrawableObjects = nullptr);
 
     ~dN_dptR();
 
@@ -34,6 +35,7 @@ public:
 
 private:
     std::string id;
+    std::vector<TObject *> *vAllDrawableObjects;
     dN_dptR_integrand tIntegrand;
     PtWeights *tPtWeights_opt;
 };

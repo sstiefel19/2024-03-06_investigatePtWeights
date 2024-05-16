@@ -32,23 +32,27 @@ MCEffi::MCEffi(std::string const &_id,
                TF1 &_fTrueEffiOverall_dp_dptG,
                utils_fits::TPairFitsWAxis &_vFits_ptG_i_dp_dr_wAxis,
                TAxis &_axisPtR,
-               PtWeights *_tPtWeights /*= nullptr*/)
+               PtWeights *_tPtWeights /*= nullptr*/,
+               std::vector<TObject *> *theVAllDrawableObjects /*= nullptr*/)
     : sID(_id),
+      vAllDrawableObjects(
+          theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       axisPtR(_axisPtR),
       tdN_dptR_NW(_id + "_fdN_dptR",
                   _fGenDist_dn_dptG,
                   _fTrueEffiOverall_dp_dptG,
-                  _vFits_ptG_i_dp_dr_wAxis),
+                  _vFits_ptG_i_dp_dr_wAxis,
+                  nullptr /*tPtWeights*/,
+                  vAllDrawableObjects),
       tdN_dptR_WW_opt(!_tPtWeights ? nullptr
                                    : new dN_dptR(_id + "_fdN_dptR",
                                                  _fGenDist_dn_dptG,
                                                  _fTrueEffiOverall_dp_dptG,
                                                  _vFits_ptG_i_dp_dr_wAxis,
-                                                 _tPtWeights)),
+                                                 _tPtWeights,
+                                                 vAllDrawableObjects)),
       hMeasuredEffi_NW_2(nullptr),
-      hMeasuredEffi_WW_2_opt(nullptr),
-      // todo: add daughter objects using the daughters lists
-      tListReadyForDrawing({&tdN_dptR_NW.GetGenDist_dn_dptG()})
+      hMeasuredEffi_WW_2_opt(nullptr)
 {
     printf("MCEffi::MCEffi(): created instance:\n"
            "\tid: %s\n"
@@ -126,10 +130,10 @@ TH1 &MCEffi::SampleMeasuredEffi_NW_2()
                                                         tdN_dptR_NW.GetGenDist_dn_dptG());
     hMeasuredEffi_NW_2->SetLineColor(kPink);
     hMeasuredEffi_NW_2->SetMarkerColor(kPink);
+    vAllDrawableObjects->push_back(hMeasuredEffi_NW_2);
     return *hMeasuredEffi_NW_2;
 }
-
-TH1 *MCEffi::SampleMeasuredEffi_WW_2()
+TH1 *MCEffi::SampleMeasuredEffi_WW_2() /*vAllDrawableObjects->push_back()*/
 {
     if (!tdN_dptR_WW_opt)
     {
@@ -143,6 +147,7 @@ TH1 *MCEffi::SampleMeasuredEffi_WW_2()
                                                             tdN_dptR_WW_opt->GetGenDist_dn_dptG());
     hMeasuredEffi_WW_2_opt->SetLineColor(kRed);
     hMeasuredEffi_WW_2_opt->SetMarkerColor(kRed);
+    vAllDrawableObjects->push_back(hMeasuredEffi_WW_2_opt);
     return hMeasuredEffi_WW_2_opt;
 }
 
@@ -155,11 +160,13 @@ void MCEffi::PlotAll(TLegend *theLeg /*= new TLegend(.73, .64, .90, .90, "")*/)
 
     // for (auto const &i : data)
 
-    for (TObject const *obj : tListReadyForDrawing)
+    for (TObject const *obj : *vAllDrawableObjects)
     {
         // make copy for drawing (which is not const)
         TObject &lObj = *obj->Clone(Form("%s_clone", obj->GetName()));
-        cout << lObj.GetName() << endl;
+        printf("MCEffi::PlotAll(): instance %s: drawing object: %s\n",
+               sID.data(),
+               lObj.GetName());
         lObj.Draw("same");
         if (theLeg)
         {
