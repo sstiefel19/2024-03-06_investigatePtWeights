@@ -142,27 +142,21 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
     {
         if (iMCEffi)
         {
-            // basic_string& insert( size_type index, const basic_string& str,
-            //        size_type s_index, size_type count = npos );
-            // Inserts a string, obtained by str.substr(s_index, count) at the position index.
-
             std::string lID(iMCEffi->GetID());
-            size_t lSize = lID.size();
-            size_t lPos = std::string("lInvPtW_main_lMCEffi_").size();
-            std::string lPrepend(lID.substr(lPos, lSize - lPos));
-            std::string iLegLable(lPrepend + "_" + theObservableName);
-
+            std::string &iLegLable = *new std::string(
+                lID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
+                "_" +
+                theObservableName);
             std::string lLegDrawOption("l");
-            utils_plotting::DrawAndAddBundle lBundle =
-                utils_plotting::DrawAndAddBundle(
-                    *iMCEffi->GetObservableObject(theObservableName),
-                    "same",
-                    kGreen + lVectorBundles.size() * 2,
-                    theLeg,
-                    // lInvPtW_main_lMCEffi_ AS_spec
-                    iLegLable,
-                    lLegDrawOption,
-                    true /* theDrawLegAlready */);
+            utils_plotting::DrawAndAddBundle lBundle(
+                *iMCEffi->GetObservableObject(theObservableName),
+                "same",
+                kGreen + lVectorBundles.size() * 2,
+                theLeg,
+                // lInvPtW_main_lMCEffi_ AS_spec
+                iLegLable,
+                lLegDrawOption,
+                true /* theDrawLegAlready */);
             lVectorBundles.push_back(lBundle);
         }
     }
