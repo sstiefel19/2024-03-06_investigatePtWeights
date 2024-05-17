@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 #include "../include/ComputeResolutionFits.h"
 
 #include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"

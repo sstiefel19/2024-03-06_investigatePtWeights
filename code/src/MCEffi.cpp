@@ -100,19 +100,19 @@ TH1 &MCEffi::GetMeasuredEffi_NW_clone()
 {
     if (hMeasuredEffi_NW_2)
     {
-        return *utils_files_strings::CloneTH1(*hMeasuredEffi_NW_2);
+        return *utils_utils::CloneTH1(*hMeasuredEffi_NW_2);
     }
-    return *utils_files_strings::CloneTH1(SampleMeasuredEffi_NW_2());
+    return *utils_utils::CloneTH1(SampleMeasuredEffi_NW_2());
 }
 
 TH1 *MCEffi::GetMeasuredEffi_WW_clone()
 {
     if (hMeasuredEffi_WW_2_opt)
     {
-        return utils_files_strings::CloneTH1(*hMeasuredEffi_WW_2_opt);
+        return utils_utils::CloneTH1(*hMeasuredEffi_WW_2_opt);
     }
     TH1 *h = SampleMeasuredEffi_WW_2();
-    return h ? utils_files_strings::CloneTH1(*h) : nullptr;
+    return h ? utils_utils::CloneTH1(*h) : nullptr;
 }
 
 TObject *MCEffi::GetObservableObject(std::string const &theObservableName)

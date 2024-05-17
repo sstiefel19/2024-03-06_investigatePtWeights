@@ -172,7 +172,7 @@ void investigatePtWeights_wResolutionEffects()
 
     // 3 obtain the genDist that was fed to lPtWeights
     // make a copy since we need to fit the histogram which stupidly changes the histogram itself
-    TH1 &hGenDist_AS = *utils_files_strings::CloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
+    TH1 &hGenDist_AS = *utils_utils::CloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
 
     // 4) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS = fitGenDistHisto("auto",
