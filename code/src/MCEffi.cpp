@@ -115,6 +115,28 @@ TH1 *MCEffi::GetMeasuredEffi_WW_clone()
     return h ? utils_files_strings::CloneTH1(*h) : nullptr;
 }
 
+TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
+{
+    {
+        if (theObservableName == "MeasuredEffi_NW")
+        {
+            return &GetMeasuredEffi_NW_clone();
+        }
+        else if (theObservableName == "MeasuredEffi_WW")
+        {
+            return GetMeasuredEffi_WW_clone();
+        }
+        else
+        {
+            printf("InvPtW::CompareObservables_generic():\n\t"
+                   "ERROR: unknown observable: %s\n"
+                   "\tReturning dummy TH1.\n",
+                   theObservableName.data());
+            return new TH1D();
+        }
+    };
+}
+
 // ================== private member functions =======================
 TH1 &MCEffi::SampleMeasuredEffi_generic_1D(std::string const &theName,
                                            TF1 const &theNumF,

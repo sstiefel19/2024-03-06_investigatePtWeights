@@ -115,6 +115,90 @@ InvPtW::InvPtW(std::string const &theID,
 }
 
 // ===================== public member functions =================================
+// TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend *theLeg /*= nullptr*/)
+// {
+//     std::string lMethodName(sID + "_CompareAllMeasuredEfficiencies");
+//     TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas",
+//                                                          lMethodName /*theTitleH*/,
+//                                                          0., 10.5,
+//                                                          1.e-6, 1.e-2,
+//                                                          true /*theLogY*/,
+//                                                          2000, 1000,
+//                                                          &lMethodName /*theTitleC*/,
+//                                                          &lMethodName,
+//                                                          0.03 /*theNameTagTextSize*/,
+//                                                          kGray /*theNameTagTextColor*/,
+//                                                          1, 2, /*theNx, theNy*/
+//                                                          1 /*theDrawFirstOnI*/);
+//     TLegend *lLeg = theLeg ? theLeg : new TLegend(.73, .64, .90, .90, "");
+//     utils_plotting::DrawAndAdd(GetMCEffi_D().GetMeasuredEffi_NW_clone(), "same", kGreen,
+//                                lLeg, "", "l", true /* theDrawLegAlready */);
+//     utils_plotting::DrawAndAdd(GetMCEffi_AS_inv().GetMeasuredEffi_NW_clone(), "same", kBlue,
+//                                lLeg, "", "l");
+//     utils_plotting::DrawAndAdd(*GetMCEffi_AS_inv().GetMeasuredEffi_WW_clone(), "same", kRed,
+//                                lLeg, "", "l");
+//     utils_plotting::DrawAndAdd(*GetMCEffi_AS_special().GetMeasuredEffi_WW_clone(), "same", kMagenta,
+//                                lLeg, "", "l");
+
+//     // utils_plotting::SaveCanvasAs(lCanvas);
+//     return lCanvas;
+// }
+
+TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName,
+                                            TLegend *theLeg,
+                                            float theLegTextSize)
+{
+    std::string lMethodName(sID + "_CompareObservables_" + theObservableName);
+    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas" /*theNameC*/,
+                                                         lMethodName /*theTitleH*/,
+                                                         0., 10.5 /*theXmin, theXmax*/,
+                                                         1.e-6, 1.e-2 /*theYmin, theYmax*/,
+                                                         true /*theLogY*/,
+                                                         2000, 1000 /*theWidth, theHeight*/,
+                                                         &lMethodName /*theTitleC*/,
+                                                         &lMethodName /*theNameH*/,
+                                                         0.03 /*theNameTagTextSize*/,
+                                                         kGray /*theNameTagTextColor*/,
+                                                         1, 2, /*theNx, theNy*/
+                                                         1 /*theDrawFirstOnI*/);
+
+    // prepare vector of objects to draw
+    std::vector<utils_plotting::DrawAndAddBundle> lVectorDrawAndAdd;
+    for (auto const &iMCEffi : vAllMCEffis)
+    {
+        if (iMCEffi)
+        {
+            utils_plotting::DrawAndAddBundle lBundle =
+                utils_plotting::DrawAndAddBundle(
+                    *iMCEffi->GetObservableObject(theObservableName),
+                    "same",
+                    kGreen + lVectorDrawAndAdd.size() * 2,
+                    theLeg,
+                    iMCEffi->GetID() + theObservableName,
+                    "l",
+                    true /* theDrawLegAlready */);
+            lVectorDrawAndAdd.push_back(lBundle);
+        }
+    }
+
+    for (auto iBundle : lVectorDrawAndAdd)
+    {
+        utils_plotting::DrawAndAdd(iBundle,
+                                   theLegTextSize);
+    }
+
+    // utils_plotting::SaveCanvasAs(lCanvas);
+    return lCanvas;
+}
+
+TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend *theLeg /*= nullptr*/)
+{
+    return CompareObservables_generic("MeasuredEffi_NW",
+                                      theLeg ? theLeg
+                                             : new TLegend(.73, .64, .90, .90, ""),
+                                      0.03 /*theLegTextSize*/);
+}
+
 int InvPtW::Initialize()
 {
     if (bInitialized)
@@ -174,35 +258,6 @@ int InvPtW::Initialize()
     printf("int InvPtW_main::Initialize(): instance %s: done initializing.\n\n\n", sID.data());
     bInitialized = true;
     return 1;
-}
-
-TCanvas &InvPtW::CompareAllMeasuredEfficiencies(TLegend *theLeg /*= nullptr*/)
-{
-    std::string lMethodName(sID + "_CompareAllMeasuredEfficiencies");
-    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas",
-                                                         lMethodName /*theTitleH*/,
-                                                         0., 10.5,
-                                                         1.e-6, 1.e-2,
-                                                         true /*theLogY*/,
-                                                         2000, 1000,
-                                                         &lMethodName /*theTitleC*/,
-                                                         &lMethodName,
-                                                         0.03 /*theNameTagTextSize*/,
-                                                         kGray /*theNameTagTextColor*/,
-                                                         1, 2, /*theNx, theNy*/
-                                                         1 /*theDrawFirstOnI*/);
-    TLegend *lLeg = theLeg ? theLeg : new TLegend(.73, .64, .90, .90, "");
-    utils_plotting::DrawAndAdd(GetMCEffi_D().GetMeasuredEffi_NW_clone(), "same", kGreen,
-                               lLeg, "", "l", true /* theDrawLegAlready */);
-    utils_plotting::DrawAndAdd(GetMCEffi_AS_inv().GetMeasuredEffi_NW_clone(), "same", kBlue,
-                               lLeg, "", "l");
-    utils_plotting::DrawAndAdd(*GetMCEffi_AS_inv().GetMeasuredEffi_WW_clone(), "same", kRed,
-                               lLeg, "", "l");
-    utils_plotting::DrawAndAdd(*GetMCEffi_AS_special().GetMeasuredEffi_WW_clone(), "same", kMagenta,
-                               lLeg, "", "l");
-
-    // utils_plotting::SaveCanvasAs(lCanvas);
-    return lCanvas;
 }
 
 int InvPtW::Main()

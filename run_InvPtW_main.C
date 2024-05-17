@@ -1,4 +1,5 @@
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 #include "/2024/2024-03-06_investigatePtWeights/code/include/InvPtW.h"
 #include "TROOT.h"
 
@@ -47,5 +48,5 @@ void run_InvPtW_main()
     */
     // Initialize && PlotAll
     lInvPtW_main.Main();
-    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareAllMeasuredEfficiencies());
+    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareMeasuredEfficiencies());
 }

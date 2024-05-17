@@ -42,9 +42,9 @@ public:
     std::string const &GetID() const { return sID; }
     TH1 const &GetMeasuredEffi_NW();
     TH1 const *GetMeasuredEffi_WW();
-    TH1  &GetMeasuredEffi_NW_clone();
-    TH1  *GetMeasuredEffi_WW_clone();
-
+    TH1 &GetMeasuredEffi_NW_clone();
+    TH1 *GetMeasuredEffi_WW_clone();
+    TObject *GetObservableObject(std::string const &theObservableName);
     void PlotAll(TLegend *theLeg = nullptr);
 
 private:
@@ -61,7 +61,7 @@ private:
     TH1 *hMeasuredEffi_WW_2_opt; // optional
 
     // private member functions
-    // helper functions - move out?
+    // helper functions
     TH1 &SampleMeasuredEffi_generic_1D(std::string const &theSuffix,
                                        TF1 const &theNumF,
                                        TF1 const &theDenF,
