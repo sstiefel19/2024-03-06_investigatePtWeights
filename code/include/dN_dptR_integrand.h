@@ -22,6 +22,10 @@ public:
     ~dN_dptR_integrand();
 
     TF1 const &GetGenDist_dn_dptG() const { return fGen_dn_dptG; }
+    TF1 &GetGenDist_dn_dptG_clone() const
+    {
+        return *(TF1 *)fGen_dn_dptG.Clone(Form("%s_clone", fGen_dn_dptG.GetName()));
+    }
     std::string const &GetID() const { return id; }
 
     TF1 &GetTF1Reference() { return fTF1; }

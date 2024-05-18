@@ -40,8 +40,8 @@ public:
     int Initialize();
     int Main();
 
-    TCanvas &CompareMeasuredEfficiencies(TLegend *theLeg = nullptr);
-    TCanvas &CompareGeneratedSpectra(TLegend *theLeg = nullptr);
+    TCanvas &CompareMeasuredEfficiencies(TLegend &theLeg);
+    TCanvas &CompareGeneratedSpectra(TLegend &theLeg);
 
     // getters
     TAxis const *GetAxisPtG() const { return aAxisPtG; }
@@ -111,9 +111,12 @@ private:
     std::vector<TObject *> vAllDrawableObjects;
 
     // ====================== private member functions =========================
-    TCanvas &CompareObservables_generic(std::string const &theObservable,
-                                        TLegend *theLeg,
-                                        float theLegendTextSize);
+    TCanvas &CompareObservables_generic(std::string const &theObservableName,
+                                        std::string const &theTitleH,
+                                        TLegend &theLeg, float theLegTextSize = 0.03,
+                                        float theXmin = 0., float theXmax = 10.5,
+                                        float theYmin = 1.e-6, float theYmax = 1.e+4,
+                                        bool theLogY = true);
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,

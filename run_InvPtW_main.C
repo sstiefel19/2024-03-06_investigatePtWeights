@@ -48,5 +48,6 @@ void run_InvPtW_main()
     */
     // Initialize && PlotAll
     lInvPtW_main.Main();
-    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareMeasuredEfficiencies());
+    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareMeasuredEfficiencies(*new TLegend(.73, .64, .90, .90, "")));
+    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareGeneratedSpectra(*new TLegend(.73, .64, .90, .90, "")));
 }

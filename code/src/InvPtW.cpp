@@ -114,69 +114,21 @@ InvPtW::InvPtW(std::string const &theID,
            fTargetGenData_dn_dptG.GetName());
 }
 
-// ===================== public member functions =================================
-TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName,
-                                            TLegend *theLeg,
-                                            float theLegTextSize)
+//  ===================== public member functions =================================
+TCanvas &InvPtW::CompareGeneratedSpectra(TLegend &theLeg)
 {
-    std::string lMethodName(sID + "_CompareObservables_" + theObservableName);
-    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas" /*theNameC*/,
-                                                         lMethodName /*theTitleH*/,
-                                                         0., 10.5 /*theXmin, theXmax*/,
-                                                         1.e-6, 1.e-2 /*theYmin, theYmax*/,
-                                                         true /*theLogY*/,
-                                                         2000, 1000 /*theWidth, theHeight*/,
-                                                         &lMethodName /*theTitleC*/,
-                                                         &lMethodName /*theNameH*/,
-                                                         0.03 /*theNameTagTextSize*/,
-                                                         kGray /*theNameTagTextColor*/,
-                                                         1, 2, /*theNx, theNy*/
-                                                         1 /*theDrawFirstOnI*/);
-
-    // prepare vector of objects to draw
-    /* create these one heap because if not they might cause problems
-       with drawing because of lifetime */
-    std::vector<utils_plotting::DrawAndAddBundle> &lVectorBundles =
-        *new std::vector<utils_plotting::DrawAndAddBundle>();
-    for (auto const &iMCEffi : vAllMCEffis)
-    {
-        if (iMCEffi)
-        {
-            std::string lID(iMCEffi->GetID());
-            std::string &iLegLable = *new std::string(
-                lID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
-                "_" +
-                theObservableName);
-            std::string lLegDrawOption("l");
-            utils_plotting::DrawAndAddBundle lBundle(
-                *iMCEffi->GetObservableObject(theObservableName),
-                "same",
-                kGreen + lVectorBundles.size() * 2,
-                theLeg,
-                // lInvPtW_main_lMCEffi_ AS_spec
-                iLegLable,
-                lLegDrawOption,
-                true /* theDrawLegAlready */);
-            lVectorBundles.push_back(lBundle);
-        }
-    }
-
-    for (auto iBundle : lVectorBundles)
-    {
-        utils_plotting::DrawAndAdd(iBundle,
-                                   theLegTextSize);
-    }
-
-    // utils_plotting::SaveCanvasAs(lCanvas);
-    return lCanvas;
+    std::string const &lObjVarName("fGen_dn_dptG_NW");
+    return CompareObservables_generic(lObjVarName,
+                                      Form("%s;ptG (GeV);dN/dptG (1./GeV)", lObjVarName.data()),
+                                      theLeg);
 }
 
-TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend *theLeg /*= nullptr*/)
+TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend &theLeg)
 {
-    return CompareObservables_generic("MeasuredEffi_NW",
-                                      theLeg ? theLeg
-                                             : new TLegend(.73, .64, .90, .90, ""),
-                                      0.03 /*theLegTextSize*/);
+    std::string const &lObjVarName("MeasuredEffi_NW");
+    return CompareObservables_generic(lObjVarName,
+                                      Form("%s;ptR (GeV);efficiency", lObjVarName.data()),
+                                      theLeg);
 }
 
 int InvPtW::Initialize()
@@ -268,6 +220,70 @@ void InvPtW::PlotAll()
 }
 
 // ===================== private member functions =========================
+TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName,
+                                            std::string const &theTitleH,
+                                            TLegend &theLeg, float theLegTextSize /*= 0.03*/,
+                                            float theXmin, float theXmax /*= 0., 10.5 */,
+                                            float theYmin, float theYmax /*= 1.e-6, 1.e+4 */,
+                                            bool theLogY /*= true*/)
+{
+    std::string lMethodName(sID + "_CompareObservables_" + theObservableName);
+    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas" /*theNameC*/,
+                                                         theTitleH /*theTitleH*/,
+                                                         theXmin, theXmax /*theXmin, theXmax*/,
+                                                         theYmin, theYmax /*theYmin, theYmax*/,
+                                                         theLogY,
+                                                         2000, 1000 /*theWidth, theHeight*/,
+                                                         &lMethodName /*theTitleC*/,
+                                                         &lMethodName /*theNameH*/,
+                                                         0.03 /*theNameTagTextSize*/,
+                                                         kGray /*theNameTagTextColor*/,
+                                                         1, 2, /*theNx, theNy*/
+                                                         1 /*theDrawFirstOnI*/);
+
+    // prepare vector of objects to draw
+    /* create these one heap because if not they might cause problems
+       with drawing because of lifetime */
+    std::vector<utils_plotting::DrawAndAddBundle> &lVectorBundles =
+        *new std::vector<utils_plotting::DrawAndAddBundle>();
+    for (auto const &iMCEffi : vAllMCEffis)
+    {
+        if (iMCEffi)
+        {
+            // prepare for constructor of DrawAndAddBundle
+            std::string lID(iMCEffi->GetID());
+            std::string &iLegLable = *new std::string(
+                lID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
+                "_" +
+                theObservableName);
+            std::string lLegDrawOption("l");
+
+            // create DrawAndAddBundle
+            utils_plotting::DrawAndAddBundle lBundle(
+                *iMCEffi->GetObservableObject(theObservableName),
+                "same",
+                kGreen + lVectorBundles.size() * 2,
+                &theLeg,
+                // lInvPtW_main_lMCEffi_ AS_spec
+                iLegLable,
+                lLegDrawOption,
+                true /* theDrawLegAlready */);
+
+            // add to vector
+            lVectorBundles.push_back(lBundle);
+        }
+    }
+
+    for (auto iBundle : lVectorBundles)
+    {
+        utils_plotting::DrawAndAdd(iBundle,
+                                   theLegTextSize);
+    }
+
+    // utils_plotting::SaveCanvasAs(lCanvas);
+    return lCanvas;
+}
+
 PtWeights &InvPtW::CreatePtWeightsInstance(std::string const &theID,
                                            bool theComputeInInvariantForm)
 {

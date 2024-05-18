@@ -126,6 +126,16 @@ TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
         {
             return GetMeasuredEffi_WW_clone();
         }
+
+        else if (theObservableName == "fGen_dn_dptG_NW")
+        {
+            return  &tdN_dptR_NW.GetIntegrand().GetGenDist_dn_dptG_clone();
+        }
+        else if (theObservableName == "fGen_dn_dptG_WW")
+        {
+            return tdN_dptR_WW_opt ? &tdN_dptR_WW_opt->GetIntegrand().GetGenDist_dn_dptG_clone()
+                                   : nullptr;
+        }
         else
         {
             printf("InvPtW::CompareObservables_generic():\n\t"
