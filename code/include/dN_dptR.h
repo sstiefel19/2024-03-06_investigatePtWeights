@@ -24,7 +24,17 @@ public:
     // can't be const since tIntegrand.fTF1.par[0] will be set to *ptR
     double Evaluate_1D(double *ptR, double *);
 
-    TF1 const &GetGenDist_dn_dptG() const { return GetIntegrand().GetGenDist_dn_dptG(); }
+    TF1 const &GetGenDist_dn_dptG_NW() const { return GetIntegrand().GetGenDist_dn_dptG_NW(); }
+    TF1 &GetGenDist_dn_dptG_NW_clone() const { return GetIntegrand().GetGenDist_dn_dptG_NW_clone(); }
+
+    TF1 const *GetGenDist_dn_dptG_WW_opt() const { return fGen_dn_dptG_WW_opt; }
+    TF1 *GetGenDist_dn_dptG_WW_opt_clone() const
+    {
+        return fGen_dn_dptG_WW_opt ? (TF1 *)fGen_dn_dptG_WW_opt->Clone(Form("%s_clone",
+                                                                            fGen_dn_dptG_WW_opt->GetName()))
+                                   : (TF1 *)nullptr;
+    }
+
     std::string const &GetID() const { return id; }
     dN_dptR_integrand const &GetIntegrand() const { return tIntegrand; }
 
@@ -38,4 +48,5 @@ private:
     std::vector<TObject *> *vAllDrawableObjects;
     dN_dptR_integrand tIntegrand;
     PtWeights *tPtWeights_opt;
+    TF1 *fGen_dn_dptG_WW_opt;
 };

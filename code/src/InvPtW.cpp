@@ -281,14 +281,16 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                 printf("preparing for constructor of DrawAndAddBundle...\n");
                 std::string &lFullObservableName =
                     *new std::string(theObservableNameBase + "_" + iOuter);
+                TObject &lObject = *iMCEffi->GetObservableObject(lFullObservableName);
+                std::string lObjDrawOption(lObject.InheritsFrom("TF1") ? "lsame" : "lpsame");
                 std::string lMCID(iMCEffi->GetID());
                 std::string &iLegLable = *new std::string(
                     lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
                     "_" +
                     lFullObservableName);
 
-                float lLineWidth = iLegLable.find("D") != std::string::npos ? 1.5
-                                   : iOuter == "WW"                         ? 2.
+                float lLineWidth = iLegLable.find("D") != std::string::npos ? 2.
+                                   : iOuter == "WW"                         ? 5.
                                                                             : 1.;
 
                 std::string lLegDrawOption(""); // empty enables auto leg draw option
@@ -296,7 +298,7 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                 // create DrawAndAddBundle
                 utils_plotting::DrawAndAddBundle lBundle(
                     *iMCEffi->GetObservableObject(lFullObservableName),
-                    "same",
+                    lObjDrawOption,
                     kGreen + lVectorBundles.size() * 2,
                     lLineWidth,
                     &theLeg,

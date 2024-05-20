@@ -41,14 +41,14 @@ MCEffi::MCEffi(std::string const &_id,
       vAllDrawableObjects(
           theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       axisPtR(_axisPtR),
-      tdN_dptR_NW(_id + "_fdN_dptR",
+      tdN_dptR_NW(sID + "_tdN_dptR_NW",
                   _fGenDist_dn_dptG,
                   _fTrueEffiOverall_dp_dptG,
                   _vFits_ptG_i_dp_dr_wAxis,
                   nullptr /*tPtWeights*/,
                   vAllDrawableObjects),
       tdN_dptR_WW_opt(!_tPtWeights ? nullptr
-                                   : new dN_dptR(_id + "_fdN_dptR",
+                                   : new dN_dptR(sID + "_tdN_dptR_WW_opt",
                                                  _fGenDist_dn_dptG,
                                                  _fTrueEffiOverall_dp_dptG,
                                                  _vFits_ptG_i_dp_dr_wAxis,
@@ -129,11 +129,11 @@ TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
 
         else if (theObservableName == "fGen_dn_dptG_NW")
         {
-            return  &tdN_dptR_NW.GetIntegrand().GetGenDist_dn_dptG_clone();
+            return &tdN_dptR_NW.GetIntegrand().GetGenDist_dn_dptG_NW_clone();
         }
         else if (theObservableName == "fGen_dn_dptG_WW")
         {
-            return tdN_dptR_WW_opt ? &tdN_dptR_WW_opt->GetIntegrand().GetGenDist_dn_dptG_clone()
+            return tdN_dptR_WW_opt ? tdN_dptR_WW_opt->GetGenDist_dn_dptG_WW_opt_clone()
                                    : nullptr;
         }
         else
@@ -181,7 +181,7 @@ TH1 &MCEffi::SampleMeasuredEffi_NW_2()
 {
     hMeasuredEffi_NW_2 = &SampleMeasuredEffi_generic_2D(sID + "_hMeasuredEffi_NW_2",
                                                         tdN_dptR_NW.GetTF2_dN_dptG_dptR(),
-                                                        tdN_dptR_NW.GetGenDist_dn_dptG());
+                                                        tdN_dptR_NW.GetGenDist_dn_dptG_NW());
     hMeasuredEffi_NW_2->SetLineColor(kPink);
     hMeasuredEffi_NW_2->SetMarkerColor(kPink);
     vAllDrawableObjects->push_back(hMeasuredEffi_NW_2);
@@ -198,7 +198,7 @@ TH1 *MCEffi::SampleMeasuredEffi_WW_2() /*vAllDrawableObjects->push_back()*/
 
     hMeasuredEffi_WW_2_opt = &SampleMeasuredEffi_generic_2D(sID + "_hMeasuredEffi_WW_2",
                                                             tdN_dptR_WW_opt->GetTF2_dN_dptG_dptR(),
-                                                            tdN_dptR_WW_opt->GetGenDist_dn_dptG());
+                                                            tdN_dptR_WW_opt->GetGenDist_dn_dptG_NW());
     hMeasuredEffi_WW_2_opt->SetLineColor(kRed);
     hMeasuredEffi_WW_2_opt->SetMarkerColor(kRed);
     vAllDrawableObjects->push_back(hMeasuredEffi_WW_2_opt);

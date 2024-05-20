@@ -11,7 +11,7 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
       vAllDrawableObjects(
           theVAllDrawableObjects ? theVAllDrawableObjects
                                  : new std::vector<TObject *>()),
-      fGen_dn_dptG(_fGen_dn_dptG),
+      fGen_dn_dptG_NW(_fGen_dn_dptG),
       fEffi_dp_dptG(_fEffi_dp_dptG),
       vFits_ptG_i_dp_dr(_vFits_ptG_i_dp_dr_wAxis.first),
       axisPtG(_vFits_ptG_i_dp_dr_wAxis.second),
@@ -19,9 +19,13 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
       fTF1(GetNewTF1(0. /*ptR*/)),
       fTF2(GetNewTF2_dN_dptG_dptR())
 {
+    // correct names
+    fGen_dn_dptG_NW.SetName((id + "_fGen_dn_dptG").data());
+    fEffi_dp_dptG.SetName((id + "_fEffi_dp_dptG").data());
+
     vAllDrawableObjects->insert(
         vAllDrawableObjects->end(),
-        std::initializer_list<TObject *>({&fGen_dn_dptG,
+        std::initializer_list<TObject *>({&fGen_dn_dptG_NW,
                                           &fEffi_dp_dptG,
                                           &fTF1,
                                           &fTF2}));
@@ -55,7 +59,7 @@ double dN_dptR_integrand::Evaluate_1D(double *ptG, double *ptR) const
         double p_GtoR = f_dp_dr ? f_dp_dr->Eval(r) : 0.;
         double ptWeight = !p_GtoR ? 0. : tPtWeights_opt ? tPtWeights_opt->GetPtWeight(ptG, nullptr)
                                                         : 1.;
-        result = fGen_dn_dptG.Eval(*ptG) * fEffi_dp_dptG.Eval(*ptG) * p_GtoR * ptWeight;
+        result = fGen_dn_dptG_NW.Eval(*ptG) * fEffi_dp_dptG.Eval(*ptG) * p_GtoR * ptWeight;
 
         if (result)
         {
@@ -85,7 +89,7 @@ double dN_dptR_integrand::Evaluate_2D(double *xy, double *) const
         double p_GtoR = f_dp_dr ? f_dp_dr->Eval(r) : 0.;
         double ptWeight = !p_GtoR ? 0. : tPtWeights_opt ? tPtWeights_opt->GetPtWeight(&ptG, nullptr)
                                                         : 1.;
-        result = fGen_dn_dptG.Eval(ptG) * fEffi_dp_dptG.Eval(ptG) * p_GtoR * ptWeight;
+        result = fGen_dn_dptG_NW.Eval(ptG) * fEffi_dp_dptG.Eval(ptG) * p_GtoR * ptWeight;
 
         if (result)
         {

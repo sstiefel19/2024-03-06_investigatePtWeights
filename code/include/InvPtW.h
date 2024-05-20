@@ -57,7 +57,7 @@ public:
     std::string const &GetMeson() const { return sMeson; }
 
     TH1D const &GetGenDist_dn_dptG_inv() const { return hMCGenDist_dn_dptG_inv; }
-    TH1D const &GetGenDist_dn_dptG() const { return hMCGenDist_dn_dptG; }
+    TH1D const &GetGenDist_dn_dptG_NW() const { return hMCGenDist_dn_dptG; }
     TF1 const *GetGenDistTF1_dn_dptG_AS() const { return fMCGenDistTF1_dn_dptG_AS; }
     TF1 const *GetGenDistTF1_dn_dptG_AS_inv() const { return fMCGenDistTF1_dn_dptG_AS_inv; }
     TF1 const &GetTargetGenData_dn_dptG_inv() const { return fTargetGenData_dn_dptG_inv; }
