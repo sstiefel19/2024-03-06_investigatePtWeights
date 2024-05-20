@@ -326,7 +326,8 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
 PtWeights &InvPtW::CreatePtWeightsInstance(std::string const &theID,
                                            bool theComputeInInvariantForm)
 {
-    std::string lFullName(theID + theComputeInInvariantForm ? "_inv" : "_special");
+    std::string lFullName(theID + (theComputeInInvariantForm ? "_inv"
+                                                             : "_special"));
     if (!aAxisPtG)
     {
         printf("investigatePtWeights_wResolutionEffects::createPtWeightsInstance():\n\t"
@@ -340,8 +341,8 @@ PtWeights &InvPtW::CreatePtWeightsInstance(std::string const &theID,
         theComputeInInvariantForm,
         theComputeInInvariantForm ? hMCGenDist_dn_dptG_inv
                                   : hMCGenDist_dn_dptG,
-        theComputeInInvariantForm ? fTargetGenData_dn_dptG
-                                  : fTargetGenData_dn_dptG_inv,
+        theComputeInInvariantForm ? fTargetGenData_dn_dptG_inv
+                                  : fTargetGenData_dn_dptG,
         *aAxisPtG);
 }
 

@@ -118,6 +118,7 @@ TH1 *MCEffi::GetMeasuredEffi_WW_clone()
 TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
 {
     {
+        // efficiencies
         if (theObservableName == "MeasuredEffi_NW")
         {
             return &GetMeasuredEffi_NW_clone();
@@ -127,6 +128,7 @@ TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
             return GetMeasuredEffi_WW_clone();
         }
 
+        // generated spectra
         else if (theObservableName == "fGen_dn_dptG_NW")
         {
             return &tdN_dptR_NW.GetIntegrand().GetGenDist_dn_dptG_NW_clone();
@@ -198,7 +200,7 @@ TH1 *MCEffi::SampleMeasuredEffi_WW_2() /*vAllDrawableObjects->push_back()*/
 
     hMeasuredEffi_WW_2_opt = &SampleMeasuredEffi_generic_2D(sID + "_hMeasuredEffi_WW_2",
                                                             tdN_dptR_WW_opt->GetTF2_dN_dptG_dptR(),
-                                                            tdN_dptR_WW_opt->GetGenDist_dn_dptG_NW());
+                                                            *tdN_dptR_WW_opt->GetGenDist_dn_dptG_WW_opt());
     hMeasuredEffi_WW_2_opt->SetLineColor(kRed);
     hMeasuredEffi_WW_2_opt->SetMarkerColor(kRed);
     vAllDrawableObjects->push_back(hMeasuredEffi_WW_2_opt);
