@@ -117,7 +117,7 @@ InvPtW::InvPtW(std::string const &theID,
 //  ===================== public member functions =================================
 TCanvas &InvPtW::CompareGeneratedSpectra(TLegend &theLeg)
 {
-    std::string const &lObjVarNameBase("fGen_dn_dptG_NW");
+    std::string const &lObjVarNameBase("fGen_dn_dptG");
     return CompareObservables_generic(lObjVarNameBase,
                                       "all" /*theSelectWhich*/,
                                       Form("%s;ptG (GeV);dN/dptG (1./GeV)",
@@ -127,7 +127,7 @@ TCanvas &InvPtW::CompareGeneratedSpectra(TLegend &theLeg)
 
 TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend &theLeg)
 {
-    std::string const &lObjVarNameBase("MeasuredEffi_NW");
+    std::string const &lObjVarNameBase("MeasuredEffi");
     return CompareObservables_generic(lObjVarNameBase,
                                       "all", /*theSelectWhich*/
                                       Form("%s;ptR (GeV);efficiency",
@@ -144,7 +144,7 @@ int InvPtW::Initialize()
     printf("\n\n\nint InvPtW_main::Initialize(): INFO: instance %s: starting to initialize.\n", sID.data());
 
     // 1) fit overall efficiency
-    fMCIntrinsicEffiAtAll_dp_dptG = &GetMesonEfficiency(sFnameFitOverallEfficiency);
+    fMCIntrinsicEffiAtAll_dp_dptG = &FitTrueDetectorIntrinsicMesonEfficiency(sFnameFitOverallEfficiency);
 
     // 2) create resolution parametrizations
     tPair_vFits_ptG_i_dp_dr_Axis = &tResolutionFits.Compute();
@@ -171,7 +171,7 @@ int InvPtW::Initialize()
                            &vAllDrawableObjects);
     vAllMCEffis.push_back(tMCEffi_D);
 
-    tMCEffi_AS_inv_ptW = new MCEffi(sID + "_lMCEffi_AS",
+    tMCEffi_AS_inv_ptW = new MCEffi(sID + "_lMCEffi_AS_inv",
                                     *fMCGenDistTF1_dn_dptG_AS,
                                     *fMCIntrinsicEffiAtAll_dp_dptG,
                                     *tPair_vFits_ptG_i_dp_dr_Axis,
@@ -267,24 +267,43 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
         {
             if (iMCEffi)
             {
+                printf("int InvPtW_main::CompareObservables_generic(): INFO: instance %s\n"
+                       "\tiOuter = %s, iMCEffi = %s ... -> ",
+                       sID.data(), iOuter.data(), iMCEffi->GetID().data());
+
+                if ((iOuter == "WW") && !iMCEffi->CanRunWithPtWeights())
+                {
+                    printf("skipping.\n");
+                    continue;
+                }
+
                 // prepare for constructor of DrawAndAddBundle
-                std::string &lFullObservableName = *new std::string(theObservableNameBase + "_" + iOuter);
+                printf("preparing for constructor of DrawAndAddBundle...\n");
+                std::string &lFullObservableName =
+                    *new std::string(theObservableNameBase + "_" + iOuter);
                 std::string lMCID(iMCEffi->GetID());
                 std::string &iLegLable = *new std::string(
                     lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
                     "_" +
-                    theObservableNameBase);
-                std::string lLegDrawOption("l");
+                    lFullObservableName);
+
+                float lLineWidth = iLegLable.find("D") != std::string::npos ? 1.5
+                                   : iOuter == "WW"                         ? 2.
+                                                                            : 1.;
+
+                std::string lLegDrawOption(""); // empty enables auto leg draw option
 
                 // create DrawAndAddBundle
                 utils_plotting::DrawAndAddBundle lBundle(
                     *iMCEffi->GetObservableObject(lFullObservableName),
                     "same",
                     kGreen + lVectorBundles.size() * 2,
+                    lLineWidth,
                     &theLeg,
                     // lInvPtW_main_lMCEffi_ AS_spec
                     iLegLable,
                     lLegDrawOption,
+                    theLegTextSize,
                     true /* theDrawLegAlready */);
 
                 // add to vector
@@ -292,38 +311,10 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
             }
         }
     }
-    for (auto const &iMCEffi : vAllMCEffis)
-    {
-        if (iMCEffi)
-        {
-            // prepare for constructor of DrawAndAddBundle
-            std::string lMCID(iMCEffi->GetID());
-            std::string &iLegLable = *new std::string(
-                lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
-                "_" +
-                theObservableNameBase);
-            std::string lLegDrawOption("l");
-
-            // create DrawAndAddBundle
-            utils_plotting::DrawAndAddBundle lBundle(
-                *iMCEffi->GetObservableObject(theObservableNameBase),
-                "same",
-                kGreen + lVectorBundles.size() * 2,
-                &theLeg,
-                // lInvPtW_main_lMCEffi_ AS_spec
-                iLegLable,
-                lLegDrawOption,
-                true /* theDrawLegAlready */);
-
-            // add to vector
-            lVectorBundles.push_back(lBundle);
-        }
-    }
 
     for (auto iBundle : lVectorBundles)
     {
-        utils_plotting::DrawAndAdd(iBundle,
-                                   theLegTextSize);
+        utils_plotting::DrawAndAdd(iBundle);
     }
 
     // utils_plotting::SaveCanvasAs(lCanvas);
@@ -355,12 +346,12 @@ PtWeights &InvPtW::CreatePtWeightsInstance(std::string const &theID,
 // set first parameter to "auto" for auto-concatenated name
 TF1 &InvPtW::FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
                                           TH1 &theTH1GenDist_dn_dptG_x, // x = inv or not
-                                          bool theTH1IsInvariant)
+                                          bool theTH1IsInvariant) const
 {
     // must not be empty
     if (!theResultNameInfo.size())
     {
-        printf("investigatePtWeights_wResolutionEffects::createGenDistFit():\n\t"
+        printf("InvPtW::FitMCGeneratedParticlesHisto():\n\t"
                "ERROR: theResultNameInfo can't be empty!\n"
                "\tChose explicit name or \'auto\' for auto-concatenated name (verbose).\n"
                "\tReturning dummy TF1.\n");
@@ -385,23 +376,22 @@ TF1 &InvPtW::FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
     return lTF1GenDist_dn_dptG_x;
 }
 
-TF1 &InvPtW::GetMesonEfficiency(std::string fname, Double_t theXmax /*= 10.*/)
+TF1 &InvPtW::FitTrueDetectorIntrinsicMesonEfficiency(std::string fname, Double_t theXmax /*= 10.*/)
 {
-    TH1 &hEffi = *(TH1 *)utils_files_strings::GetObjectFromPathInFile(fname, "hMyTrueEffiA");
+    TH1 &lTH1Effi = *(TH1 *)utils_files_strings::GetObjectFromPathInFile(fname, "hMyTrueEffiA");
     TCanvas *c3 = new TCanvas("c3", "c3", 2000, 1000);
     TH2 *hd21 = new TH2F("hd1", ";MC pT(GeV);dP/dptG", 1, 0., theXmax, 1, 1e-6, 2e-3);
     hd21->Draw();
     //~ gPad->SetLogy();
 
-    TF1 &fEffi = *new TF1("fEffi", " ( 1e-5 + [0]*x + [1]*x*x + [2]*x*x*x + [3]*x*x*x*x)", 0., theXmax);
-    fEffi.SetParameters(1, 1, -1, 0.);
-    hEffi.Fit(&fEffi, "N");
+    TF1 &lTF1Effi = *new TF1("lTF1Effi", " ( 1e-5 + [0]*x + [1]*x*x + [2]*x*x*x + [3]*x*x*x*x)", 0., theXmax);
+    lTF1Effi.SetParameters(1, 1, -1, 0.);
+    lTH1Effi.Fit(&lTF1Effi, "N");
 
     auto &leg = *new TLegend();
-    utils_plotting::DrawAndAdd(hEffi, "same", kRed,
+    utils_plotting::DrawAndAdd(lTH1Effi, "same", kRed, 1. /* theObjLineWidth */,
                                &leg, "", "l", true /* theDrawLegAlready */);
-    utils_plotting::DrawAndAdd(fEffi, "same", kBlue,
+    utils_plotting::DrawAndAdd(lTF1Effi, "same", kBlue, 1. /* theObjLineWidth */,
                                &leg, "", "l");
-    std::cout << "fEffi: " << fEffi.GetTitle() << std::endl;
-    return fEffi;
+    return lTF1Effi;
 }

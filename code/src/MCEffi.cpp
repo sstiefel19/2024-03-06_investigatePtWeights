@@ -138,7 +138,7 @@ TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
         }
         else
         {
-            printf("InvPtW::CompareObservables_generic():\n\t"
+            printf("MCEffi::GetObservableObject():\n\t"
                    "ERROR: unknown observable: %s\n"
                    "\tReturning dummy TH1.\n",
                    theObservableName.data());

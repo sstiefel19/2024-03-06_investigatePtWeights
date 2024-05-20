@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../../../pcg/AnalysisSoftware/utils_sstiefel_2024"
 		}
 	],
 	"settings": {

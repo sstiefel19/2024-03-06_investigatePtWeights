@@ -122,10 +122,10 @@ private:
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
                                       TH1 &theTH1GenDist_dn_dptG_x, // x = inv or not
-                                      bool theTH1IsInvariant);
+                                      bool theTH1IsInvariant) const;
 
     // detector parametrizations
-    TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
+    static TF1 &FitTrueDetectorIntrinsicMesonEfficiency(std::string fname, Double_t theXmax = 10.);
 
     // pt weights related
     PtWeights &CreatePtWeightsInstance(std::string const &theID,

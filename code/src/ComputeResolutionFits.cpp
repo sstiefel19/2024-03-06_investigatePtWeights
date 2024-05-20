@@ -123,9 +123,10 @@ ComputeResolutionFits::Compute()
         {
             auto drawAll = [&](TLegend *leg)
             {
-                utils_plotting::DrawAndAdd(h1r, "", kBlue, leg, "histo");
-                utils_plotting::DrawAndAdd(fitBN, "same", kRed, leg, "fit");
-                utils_plotting::DrawAndAdd(fitN, "same", kGreen, leg, "fit norm.");
+                float lLineWidth = 1.;
+                utils_plotting::DrawAndAdd(h1r, "", kBlue, lLineWidth, leg, "histo");
+                utils_plotting::DrawAndAdd(fitBN, "same", lLineWidth, kRed, leg, "fit");
+                utils_plotting::DrawAndAdd(fitN, "same", lLineWidth, kGreen, leg, "fit norm.");
                 leg->Draw("same");
             };
 
