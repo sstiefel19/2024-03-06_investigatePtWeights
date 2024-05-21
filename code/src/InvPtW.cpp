@@ -252,20 +252,21 @@ InvPtW::FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
                 std::string lFullObservableName(theObservableNameBase + "_" + iOuter);
                 TObject &lObject = *iMCEffi->GetObservableObject(lFullObservableName);
                 std::string lObjDrawOption(lObject.InheritsFrom("TF1") ? "lsame" : "lpsame");
+
+                // legend related
                 std::string lMCID(iMCEffi->GetID());
                 std::string iLegLable(
                     lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
                     "_" +
                     lFullObservableName);
 
+                // object related but depends on iLegLable
                 float lLineWidth = iLegLable.find("D") != std::string::npos ? 2.
                                    : iOuter == "WW"                         ? 5.
                                                                             : 1.;
 
-                std::string lLegDrawOption("auto"); // empty enables auto leg draw option
-
                 // create DrawAndAddBundle
-                auto &lBundle = *new utils_plotting::DrawAndAddBundle(
+                utils_plotting::DrawAndAddBundle lBundle(
                     *iMCEffi->GetObservableObject(lFullObservableName),
                     lObjDrawOption,
                     kGreen + lResVectorBundles.size() * 2,
@@ -273,7 +274,7 @@ InvPtW::FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
                     &theLeg,
                     // lInvPtW_main_lMCEffi_ AS_spec
                     iLegLable,
-                    lLegDrawOption,
+                    "auto",
                     theLegTextSize,
                     true /* theDrawLegAlready */);
 
@@ -310,18 +311,17 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                                                          1, 2, /*theNx, theNy*/
                                                          1 /*theDrawFirstOnI*/);
 
-    // prepare vector of objects to draw
-    /* create these one heap because if not they might cause problems
-       with drawing because of lifetime */
-
+    // define outer iteration loop
     auto &lIterationOuter =
         theSelectWhich == "all" ? *new std::vector<std::string>{"NW", "WW"}
                                 : *new std::vector<std::string>{theSelectWhich};
 
-    auto &lResVectorBundles = FillDrawAndAddBundle(lIterationOuter,
-                                                   theObservableNameBase,
-                                                   theLeg,
-                                                   theLegTextSize);
+    // iterate over outer loop and iterate over vAllMCEffis inside to fill lResVectorBundles
+    std::vector<utils_plotting::DrawAndAddBundle> &lResVectorBundles =
+        FillDrawAndAddBundle(lIterationOuter,
+                             theObservableNameBase,
+                             theLeg,
+                             theLegTextSize);
 
     for (auto iBundle : lResVectorBundles)
     {
