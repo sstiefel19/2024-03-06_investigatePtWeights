@@ -4,6 +4,7 @@
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 
 #include "../include/MCEffi.h"
 #include "../include/PtWeights.h"
@@ -111,6 +112,13 @@ private:
     std::vector<TObject *> vAllDrawableObjects;
 
     // ====================== private member functions =========================
+    // helper for CompareObservables_generic
+    std::vector<utils_plotting::DrawAndAddBundle> &
+    FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
+                         std::string const &theObservableNameBase,
+                         TLegend &theLeg,
+                         float theLegTextSize) const;
+
     TCanvas &CompareObservables_generic(std::string const &theObservableNameBase,
                                         std::string const &theSelectWhich,
                                         std::string const &theTitleH,

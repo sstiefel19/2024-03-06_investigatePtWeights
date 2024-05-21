@@ -1,10 +1,7 @@
 // purpose: find out how well pt weights work with resolution effect taken into account
 #include "../include/InvPtW.h"
 
-#include "/analysisSoftware/utils_sstiefel_2024/include/GCo.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
-#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
+// #include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TH1.h"
 
 #include "../include/dN_dptR_integrand.h"
@@ -224,6 +221,69 @@ void InvPtW::PlotAll()
 }
 
 // ===================== private member functions =========================
+std::vector<utils_plotting::DrawAndAddBundle> &
+InvPtW::FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
+                             std::string const &theObservableNameBase,
+                             TLegend &theLeg,
+                             float theLegTextSize) const
+{
+    auto &lResVectorBundles = *new std::vector<utils_plotting::DrawAndAddBundle>();
+
+    // outer loop over NW, WW
+    for (auto const &iOuter : theIterationOuter)
+    {
+        // inner loop over all MCEffi instances
+        for (auto const &iMCEffi : vAllMCEffis)
+        {
+            if (iMCEffi)
+            {
+                printf("int InvPtW_main::CompareObservables_generic(): INFO: instance %s\n"
+                       "\tiOuter = %s, iMCEffi = %s ... -> ",
+                       sID.data(), iOuter.data(), iMCEffi->GetID().data());
+
+                if ((iOuter == "WW") && !iMCEffi->CanRunWithPtWeights())
+                {
+                    printf("skipping.\n");
+                    continue;
+                }
+
+                // prepare for constructor of DrawAndAddBundle
+                printf("preparing for constructor of DrawAndAddBundle...\n");
+                std::string lFullObservableName(theObservableNameBase + "_" + iOuter);
+                TObject &lObject = *iMCEffi->GetObservableObject(lFullObservableName);
+                std::string lObjDrawOption(lObject.InheritsFrom("TF1") ? "lsame" : "lpsame");
+                std::string lMCID(iMCEffi->GetID());
+                std::string iLegLable(
+                    lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
+                    "_" +
+                    lFullObservableName);
+
+                float lLineWidth = iLegLable.find("D") != std::string::npos ? 2.
+                                   : iOuter == "WW"                         ? 5.
+                                                                            : 1.;
+
+                std::string lLegDrawOption("auto"); // empty enables auto leg draw option
+
+                // create DrawAndAddBundle
+                auto &lBundle = *new utils_plotting::DrawAndAddBundle(
+                    *iMCEffi->GetObservableObject(lFullObservableName),
+                    lObjDrawOption,
+                    kGreen + lResVectorBundles.size() * 2,
+                    lLineWidth,
+                    &theLeg,
+                    // lInvPtW_main_lMCEffi_ AS_spec
+                    iLegLable,
+                    lLegDrawOption,
+                    theLegTextSize,
+                    true /* theDrawLegAlready */);
+
+                // add to vector
+                lResVectorBundles.push_back(lBundle);
+            }
+        }
+    }
+    return lResVectorBundles;
+}
 TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableNameBase,
                                             std::string const &theSelectWhich,
                                             std::string const &theTitleH,
@@ -253,68 +313,17 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
     // prepare vector of objects to draw
     /* create these one heap because if not they might cause problems
        with drawing because of lifetime */
-    auto &lVectorBundles = *new std::vector<utils_plotting::DrawAndAddBundle>();
 
     auto &lIterationOuter =
         theSelectWhich == "all" ? *new std::vector<std::string>{"NW", "WW"}
                                 : *new std::vector<std::string>{theSelectWhich};
 
-    // outer loop over NW, WW
-    for (auto &iOuter : lIterationOuter)
-    {
-        // inner loop over all MCEffi instances
-        for (auto const &iMCEffi : vAllMCEffis)
-        {
-            if (iMCEffi)
-            {
-                printf("int InvPtW_main::CompareObservables_generic(): INFO: instance %s\n"
-                       "\tiOuter = %s, iMCEffi = %s ... -> ",
-                       sID.data(), iOuter.data(), iMCEffi->GetID().data());
+    auto &lResVectorBundles = FillDrawAndAddBundle(lIterationOuter,
+                                                   theObservableNameBase,
+                                                   theLeg,
+                                                   theLegTextSize);
 
-                if ((iOuter == "WW") && !iMCEffi->CanRunWithPtWeights())
-                {
-                    printf("skipping.\n");
-                    continue;
-                }
-
-                // prepare for constructor of DrawAndAddBundle
-                printf("preparing for constructor of DrawAndAddBundle...\n");
-                std::string &lFullObservableName =
-                    *new std::string(theObservableNameBase + "_" + iOuter);
-                TObject &lObject = *iMCEffi->GetObservableObject(lFullObservableName);
-                std::string lObjDrawOption(lObject.InheritsFrom("TF1") ? "lsame" : "lpsame");
-                std::string lMCID(iMCEffi->GetID());
-                std::string &iLegLable = *new std::string(
-                    lMCID.erase(0, std::string("lInvPtW_main_lMCEffi_").size()) +
-                    "_" +
-                    lFullObservableName);
-
-                float lLineWidth = iLegLable.find("D") != std::string::npos ? 2.
-                                   : iOuter == "WW"                         ? 5.
-                                                                            : 1.;
-
-                std::string lLegDrawOption(""); // empty enables auto leg draw option
-
-                // create DrawAndAddBundle
-                utils_plotting::DrawAndAddBundle lBundle(
-                    *iMCEffi->GetObservableObject(lFullObservableName),
-                    lObjDrawOption,
-                    kGreen + lVectorBundles.size() * 2,
-                    lLineWidth,
-                    &theLeg,
-                    // lInvPtW_main_lMCEffi_ AS_spec
-                    iLegLable,
-                    lLegDrawOption,
-                    theLegTextSize,
-                    true /* theDrawLegAlready */);
-
-                // add to vector
-                lVectorBundles.push_back(lBundle);
-            }
-        }
-    }
-
-    for (auto iBundle : lVectorBundles)
+    for (auto iBundle : lResVectorBundles)
     {
         utils_plotting::DrawAndAdd(iBundle);
     }
