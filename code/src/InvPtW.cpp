@@ -221,13 +221,13 @@ void InvPtW::PlotAll()
 }
 
 // ===================== private member functions =========================
-std::vector<utils_plotting::DrawAndAddBundle> &
+std::vector<utils_plotting::DrawAndAddBundle const> &
 InvPtW::FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
                              std::string const &theObservableNameBase,
                              TLegend &theLeg,
                              float theLegTextSize) const
 {
-    auto &lResVectorBundles = *new std::vector<utils_plotting::DrawAndAddBundle>();
+    auto &lResVectorBundles = *new std::vector<utils_plotting::DrawAndAddBundle const>();
 
     // outer loop over NW, WW
     for (auto const &iOuter : theIterationOuter)
@@ -291,21 +291,21 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                                             TLegend &theLeg, float theLegTextSize /*= 0.03*/,
                                             float theXmin, float theXmax /*= 0., 10.5 */,
                                             float theYmin, float theYmax /*= 1.e-6, 1.e+4 */,
-                                            bool theLogY /*= true*/)
+                                            bool theLogY /*= true*/,
+                                            float theRatioYmin /*= 0.8*/, float theRatioYmax /*= 1.2 */)
 {
-    std::string lMethodName(sID +
-                            "_CompareObservables_" +
-                            theObservableNameBase +
-                            "_" + theSelectWhich);
-
-    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lMethodName + "_canvas" /*theNameC*/,
+    std::string lMethodName("CompareObservables_generic");
+    std::string lID(sID + "_" + lMethodName + "_" + theObservableNameBase);
+    std::string lNameC("c_" + lID);
+    std::string lNameH("h_" + lID);
+    TCanvas &lCanvas = utils_plotting::GetCanvasWithTH2F(lNameC /*theNameC*/,
                                                          theTitleH /*theTitleH*/,
                                                          theXmin, theXmax /*theXmin, theXmax*/,
                                                          theYmin, theYmax /*theYmin, theYmax*/,
                                                          theLogY,
                                                          2000, 1000 /*theWidth, theHeight*/,
-                                                         &lMethodName /*theTitleC*/,
-                                                         &lMethodName /*theNameH*/,
+                                                         lNameC /*theTitleC*/,
+                                                         lNameH /*theNameH*/,
                                                          0.03 /*theNameTagTextSize*/,
                                                          kGray /*theNameTagTextColor*/,
                                                          1, 2, /*theNx, theNy*/
@@ -317,17 +317,30 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                                 : *new std::vector<std::string>{theSelectWhich};
 
     // iterate over outer loop and iterate over vAllMCEffis inside to fill lResVectorBundles
-    std::vector<utils_plotting::DrawAndAddBundle> &lResVectorBundles =
+    std::vector<utils_plotting::DrawAndAddBundle const> &lResVectorBundles =
         FillDrawAndAddBundle(lIterationOuter,
                              theObservableNameBase,
                              theLeg,
                              theLegTextSize);
 
+    // this plots all the objects in lResVectorBundles onto upper panel of lCanvas
     for (auto iBundle : lResVectorBundles)
     {
         utils_plotting::DrawAndAdd(iBundle);
     }
 
+    // continue with ratio plots if the objects are TH1
+    TObject const &lDenom = lResVectorBundles.at(0).tObj;
+    if (lDenom.InheritsFrom("TF1") || lDenom.InheritsFrom("TH1"))
+    {
+        utils_plotting::PlotRatiosFromVectorBundle(
+            lID + "_ratios",
+            lResVectorBundles,
+            lDenom.InheritsFrom("TF1") ? "TF1"
+                                       : "TH1",
+            &lCanvas,
+            theRatioYmin, theRatioYmax);
+    }
     // utils_plotting::SaveCanvasAs(lCanvas);
     return lCanvas;
 }

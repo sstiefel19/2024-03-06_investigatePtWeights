@@ -113,7 +113,7 @@ private:
 
     // ====================== private member functions =========================
     // helper for CompareObservables_generic
-    std::vector<utils_plotting::DrawAndAddBundle> &
+    std::vector<utils_plotting::DrawAndAddBundle const> &
     FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
                          std::string const &theObservableNameBase,
                          TLegend &theLeg,
@@ -125,7 +125,8 @@ private:
                                         TLegend &theLeg, float theLegTextSize = 0.03,
                                         float theXmin = 0., float theXmax = 10.5,
                                         float theYmin = 1.e-6, float theYmax = 1.e+4,
-                                        bool theLogY = true);
+                                        bool theLogY = true,
+                                        float theRatioYmin = 0.8, float theRatioYmax = 1.2);
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
