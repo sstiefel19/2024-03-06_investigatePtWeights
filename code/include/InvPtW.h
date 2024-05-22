@@ -41,8 +41,8 @@ public:
     int Initialize();
     int Main();
 
-    TCanvas &CompareMeasuredEfficiencies(TLegend &theLeg);
-    TCanvas &CompareGeneratedSpectra(TLegend &theLeg);
+    TCanvas &CompareMeasuredEfficiencies(TLegend &theLeg, bool theWithRatio = false);
+    TCanvas &CompareGeneratedSpectra(TLegend &theLeg, bool theWithRatio = false);
 
     // getters
     TAxis const *GetAxisPtG() const { return aAxisPtG; }
@@ -126,7 +126,7 @@ private:
                                         float theXmin = 0., float theXmax = 10.5,
                                         float theYmin = 1.e-6, float theYmax = 1.e+4,
                                         bool theLogY = true,
-                                        float theRatioYmin = 0.8, float theRatioYmax = 1.2);
+                                        float theRatioYmin = 1, float theRatioYmax = 1); // both the same mean no ratio
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,

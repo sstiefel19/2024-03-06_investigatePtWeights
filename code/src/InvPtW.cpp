@@ -112,24 +112,36 @@ InvPtW::InvPtW(std::string const &theID,
 }
 
 //  ===================== public member functions =================================
-TCanvas &InvPtW::CompareGeneratedSpectra(TLegend &theLeg)
+TCanvas &InvPtW::CompareGeneratedSpectra(TLegend &theLeg, bool theWithRatio /*=false*/)
 {
     std::string const &lObjVarNameBase("fGen_dn_dptG");
     return CompareObservables_generic(lObjVarNameBase,
                                       "all" /*theSelectWhich*/,
                                       Form("%s;ptG (GeV);dN/dptG (1./GeV)",
                                            lObjVarNameBase.data()),
-                                      theLeg);
+                                      theLeg,
+                                      .029,
+                                      0., 10.5,
+                                      1e-6, 1e+3,
+                                      true,
+                                      theWithRatio ? 0.8 : 1,
+                                      theWithRatio ? 1.2 : 1.);
 }
 
-TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend &theLeg)
+TCanvas &InvPtW::CompareMeasuredEfficiencies(TLegend &theLeg, bool theWithRatio /*=false*/)
 {
     std::string const &lObjVarNameBase("MeasuredEffi");
     return CompareObservables_generic(lObjVarNameBase,
                                       "all", /*theSelectWhich*/
                                       Form("%s;ptR (GeV);efficiency",
                                            lObjVarNameBase.data()),
-                                      theLeg);
+                                      theLeg,
+                                      .029,
+                                      0., 10.5,
+                                      1e-6, 1e+3,
+                                      true,
+                                      theWithRatio ? 0.8 : 1,
+                                      theWithRatio ? 1.2 : 1.);
 }
 
 int InvPtW::Initialize()
@@ -292,7 +304,8 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
                                             float theXmin, float theXmax /*= 0., 10.5 */,
                                             float theYmin, float theYmax /*= 1.e-6, 1.e+4 */,
                                             bool theLogY /*= true*/,
-                                            float theRatioYmin /*= 0.8*/, float theRatioYmax /*= 1.2 */)
+                                            // both the same mean no ratio
+                                            float theRatioYmin /*= 1*/, float theRatioYmax /*= 1 */)
 {
     std::string lMethodName("CompareObservables_generic");
     std::string lID(sID + "_" + lMethodName + "_" + theObservableNameBase);
@@ -329,7 +342,12 @@ TCanvas &InvPtW::CompareObservables_generic(std::string const &theObservableName
         utils_plotting::DrawAndAdd(iBundle);
     }
 
-    // continue with ratio plots if the objects are TH1
+    if (theRatioYmin == theRatioYmax)
+    {
+        return lCanvas;
+    }
+
+    // continue with ratio plots if not returned
     TObject const &lDenom = lResVectorBundles.at(0).tObj;
     if (lDenom.InheritsFrom("TF1") || lDenom.InheritsFrom("TH1"))
     {
