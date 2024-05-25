@@ -1,6 +1,7 @@
 #include "../include/dN_dptR.h"
 #include "../include/dN_dptR_integrand.h"
 #include "../include/PtWeights.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
 
 #include "TF1.h"
 #include "TF2.h"
@@ -19,7 +20,11 @@ dN_dptR::dN_dptR(std::string const &_id,
                  _fEffi_dp_dptG,
                  _vFits_ptG_i_dp_dr_wAxis,
                  _tPtWeights),
-      tPtWeights_opt(_tPtWeights)
+      tPtWeights_opt(_tPtWeights),
+      fGen_dn_dptG_WW_opt(tPtWeights_opt ? &utils_TF1::TF1Product(id + "_fGen_dn_dptG_WW_opt",
+                                                                  GetGenDist_dn_dptG_NW_clone(),
+                                                                  tPtWeights_opt->GetTF1())
+                                         : nullptr)
 {
     printf("dN_dptR::dN_dptR(): created instance %s %s ptWeights.\n",
            id.data(), tPtWeights_opt ? "with" : "without");

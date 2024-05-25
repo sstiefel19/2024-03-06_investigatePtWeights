@@ -81,7 +81,7 @@ void testTH1continuosEvaluationMethods()
     // 4) use TH1::Interpolate at many points along h_inv
     // use a fine binned histogram to move in small discrete steps along the x-axis
     TH1 &hExistingEval = *new TH1F("hExistingEval", ";pT (GeV);1/pT dN/dpT", 1000, 0., 10.);
-    TH1 &hF_inv = *utils_files_strings::CloneTH1(hExistingEval, "", "hF_inv", "hF_inv");
+    TH1 &hF_inv = *utils_utils::CloneTH1(hExistingEval, "", "hF_inv", "hF_inv");
 
     for (int i = 1; i <= hExistingEval.GetNbinsX(); i++)
     {

@@ -4,6 +4,7 @@
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_fits.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_files_strings.h"
 #include "/analysisSoftware/utils_sstiefel_2024/include/utils_TF1.h"
+#include "/analysisSoftware/utils_sstiefel_2024/include/utils_plotting.h"
 
 #include "../include/MCEffi.h"
 #include "../include/PtWeights.h"
@@ -40,12 +41,12 @@ public:
     int Initialize();
     int Main();
 
-    TCanvas &CompareMeasuredEfficiencies(TLegend *theLeg = nullptr);
-    TCanvas &CompareGeneratedSpectra(TLegend *theLeg = nullptr);
+    TCanvas &CompareMeasuredEfficiencies(TLegend &theLeg, bool theWithRatio = false);
+    TCanvas &CompareGeneratedSpectra(TLegend &theLeg, bool theWithRatio = false);
 
     // getters
     TAxis const *GetAxisPtG() const { return aAxisPtG; }
-    TF1 const *GetEffiAtAll_dp_dptG() const { return fEffiAtAll_dp_dptG; }
+    TF1 const *GetEffiAtAll_dp_dptG() const { return fMCIntrinsicEffiAtAll_dp_dptG; }
     GCo const &GetGCo_h2Resolution() const { return tGCo_forH2Resolution; }
 
     ComputeResolutionFits const &GetResFitsInstance() const { return tResolutionFits; }
@@ -56,16 +57,16 @@ public:
     std::string const &GetFnameWeightsFile() const { return sFnameWeightsFile; }
     std::string const &GetMeson() const { return sMeson; }
 
-    TH1D const &GetGenDist_dn_dptG_inv() const { return hGenDist_dn_dptG_inv; }
-    TH1D const &GetGenDist_dn_dptG() const { return hGenDist_dn_dptG; }
-    TF1 const *GetGenDistTF1_dn_dptG_AS() const { return fGenDistTF1_dn_dptG_AS; }
-    TF1 const *GetGenDistTF1_dn_dptG_AS_inv() const { return fGenDistTF1_dn_dptG_AS_inv; }
+    TH1D const &GetGenDist_dn_dptG_inv() const { return hMCGenDist_dn_dptG_inv; }
+    TH1D const &GetGenDist_dn_dptG_NW() const { return hMCGenDist_dn_dptG; }
+    TF1 const *GetGenDistTF1_dn_dptG_AS() const { return fMCGenDistTF1_dn_dptG_AS; }
+    TF1 const *GetGenDistTF1_dn_dptG_AS_inv() const { return fMCGenDistTF1_dn_dptG_AS_inv; }
     TF1 const &GetTargetGenData_dn_dptG_inv() const { return fTargetGenData_dn_dptG_inv; }
     TF1 const &GetTargetGenData_dn_dptG() const { return fTargetGenData_dn_dptG; }
 
     MCEffi &GetMCEffi_D() { return *tMCEffi_D; }
-    MCEffi &GetMCEffi_AS_inv() { return *tMCEffi_AS_inv; }
-    MCEffi &GetMCEffi_AS_special() { return *tMCEffi_AS_special; }
+    MCEffi &GetMCEffi_AS_inv() { return *tMCEffi_AS_inv_ptW; }
+    MCEffi &GetMCEffi_AS_special() { return *tMCEffi_AS_special_ptW; }
 
     std::string const &GetID() const { return sID; }
     bool IsInitialized() const { return bInitialized; }
@@ -87,23 +88,23 @@ private:
 
     // defining data and MC distributions, will be extracted from above files
     TF1 fTargetGenData_dn_dptG_inv; // from sFnameWeightsFile
-    TH1D hGenDist_dn_dptG_inv;      // from sFnameWeightsFile
+    TH1D hMCGenDist_dn_dptG_inv;    // from sFnameWeightsFile
 
     // derived information
-    TH1D hGenDist_dn_dptG;
+    TH1D hMCGenDist_dn_dptG;
     TF1 fTargetGenData_dn_dptG;
 
     // members that can't be initialized right away
-    TF1 *fEffiAtAll_dp_dptG;
+    TF1 *fMCIntrinsicEffiAtAll_dp_dptG;
     utils_fits::TPairFitsWAxis *tPair_vFits_ptG_i_dp_dr_Axis;
     TAxis *aAxisPtG; // gets intialized in ParametrizeEfficiencies
 
-    TF1 *fGenDistTF1_dn_dptG_AS;
-    TF1 *fGenDistTF1_dn_dptG_AS_inv;
+    TF1 *fMCGenDistTF1_dn_dptG_AS;
+    TF1 *fMCGenDistTF1_dn_dptG_AS_inv;
 
-    MCEffi *tMCEffi_D;          // Ngen shape as in data, no pt-weights
-    MCEffi *tMCEffi_AS_inv;     // Ngen shape as in AS MC, can run with and without pt-weights
-    MCEffi *tMCEffi_AS_special; // Ngen shape as in AS MC, can run with and without pt-weights
+    MCEffi *tMCEffi_D;              // Ngen shape as in data, no pt-weights
+    MCEffi *tMCEffi_AS_inv_ptW;     // Ngen shape as in AS MC, can run with and without pt-weights
+    MCEffi *tMCEffi_AS_special_ptW; // Ngen shape as in AS MC, can run with and without pt-weights
 
     // accounting
     bool bInitialized;
@@ -111,17 +112,29 @@ private:
     std::vector<TObject *> vAllDrawableObjects;
 
     // ====================== private member functions =========================
-    TCanvas &CompareObservables_generic(std::string const &theObservable,
-                                        TLegend *theLeg,
-                                        float theLegendTextSize);
+    // helper for CompareObservables_generic
+    std::vector<utils_plotting::DrawAndAddBundle const> &
+    FillDrawAndAddBundle(std::vector<std::string> const &theIterationOuter,
+                         std::string const &theObservableNameBase,
+                         TLegend &theLeg,
+                         float theLegTextSize) const;
+
+    TCanvas &CompareObservables_generic(std::string const &theObservableNameBase,
+                                        std::string const &theSelectWhich,
+                                        std::string const &theTitleH,
+                                        TLegend &theLeg, float theLegTextSize = 0.03,
+                                        float theXmin = 0., float theXmax = 10.5,
+                                        float theYmin = 1.e-6, float theYmax = 1.e+4,
+                                        bool theLogY = true,
+                                        float theRatioYmin = 1, float theRatioYmax = 1); // both the same mean no ratio
 
     // set first parameter to "auto" for auto-concatenated name
     TF1 &FitMCGeneratedParticlesHisto(std::string const &theResultNameInfo,
                                       TH1 &theTH1GenDist_dn_dptG_x, // x = inv or not
-                                      bool theTH1IsInvariant);
+                                      bool theTH1IsInvariant) const;
 
     // detector parametrizations
-    TF1 &GetMesonEfficiency(std::string fname, Double_t theXmax = 10.);
+    static TF1 &FitTrueDetectorIntrinsicMesonEfficiency(std::string fname, Double_t theXmax = 10.);
 
     // pt weights related
     PtWeights &CreatePtWeightsInstance(std::string const &theID,

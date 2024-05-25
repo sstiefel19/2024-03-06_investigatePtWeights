@@ -11,7 +11,7 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
       vAllDrawableObjects(
           theVAllDrawableObjects ? theVAllDrawableObjects
                                  : new std::vector<TObject *>()),
-      fGen_dn_dptG(_fGen_dn_dptG),
+      fGen_dn_dptG_NW(_fGen_dn_dptG),
       fEffi_dp_dptG(_fEffi_dp_dptG),
       vFits_ptG_i_dp_dr(_vFits_ptG_i_dp_dr_wAxis.first),
       axisPtG(_vFits_ptG_i_dp_dr_wAxis.second),
@@ -19,9 +19,13 @@ dN_dptR_integrand::dN_dptR_integrand(std::string const &_id,
       fTF1(GetNewTF1(0. /*ptR*/)),
       fTF2(GetNewTF2_dN_dptG_dptR())
 {
+    // correct names
+    fGen_dn_dptG_NW.SetName((id + "_fGen_dn_dptG").data());
+    fEffi_dp_dptG.SetName((id + "_fEffi_dp_dptG").data());
+
     vAllDrawableObjects->insert(
         vAllDrawableObjects->end(),
-        std::initializer_list<TObject *>({&fGen_dn_dptG,
+        std::initializer_list<TObject *>({&fGen_dn_dptG_NW,
                                           &fEffi_dp_dptG,
                                           &fTF1,
                                           &fTF2}));
@@ -55,7 +59,7 @@ double dN_dptR_integrand::Evaluate_1D(double *ptG, double *ptR) const
         double p_GtoR = f_dp_dr ? f_dp_dr->Eval(r) : 0.;
         double ptWeight = !p_GtoR ? 0. : tPtWeights_opt ? tPtWeights_opt->GetPtWeight(ptG, nullptr)
                                                         : 1.;
-        result = fGen_dn_dptG.Eval(*ptG) * fEffi_dp_dptG.Eval(*ptG) * p_GtoR * ptWeight;
+        result = fGen_dn_dptG_NW.Eval(*ptG) * fEffi_dp_dptG.Eval(*ptG) * p_GtoR * ptWeight;
 
         if (result)
         {
@@ -85,7 +89,7 @@ double dN_dptR_integrand::Evaluate_2D(double *xy, double *) const
         double p_GtoR = f_dp_dr ? f_dp_dr->Eval(r) : 0.;
         double ptWeight = !p_GtoR ? 0. : tPtWeights_opt ? tPtWeights_opt->GetPtWeight(&ptG, nullptr)
                                                         : 1.;
-        result = fGen_dn_dptG.Eval(ptG) * fEffi_dp_dptG.Eval(ptG) * p_GtoR * ptWeight;
+        result = fGen_dn_dptG_NW.Eval(ptG) * fEffi_dp_dptG.Eval(ptG) * p_GtoR * ptWeight;
 
         if (result)
         {
@@ -118,3 +122,16 @@ TF2 &dN_dptR_integrand::GetNewTF2_dN_dptG_dptR() const
     vAllDrawableObjects->push_back(&f);
     return f;
 }
+
+TF1 const &dN_dptR_integrand::GetGenDist_dn_dptG_NW() const { return fGen_dn_dptG_NW; }
+    TF1 &dN_dptR_integrand::GetGenDist_dn_dptG_NW_clone() const
+    {
+        return *(TF1 *)fGen_dn_dptG_NW.Clone(Form("%s_clone", fGen_dn_dptG_NW.GetName()));
+    }
+    std::string const &dN_dptR_integrand::GetID() const { return id; }
+
+    TF1 &dN_dptR_integrand::GetTF1Reference() { return fTF1; }
+    TF1 const &dN_dptR_integrand::GetTF1WithLastSetPtR() const { return fTF1; }
+    TF2 const &dN_dptR_integrand::GetTF2_dN_dptG_dptR() const { return fTF2; }
+
+    void dN_dptR_integrand::SetTF1ParameterPtR(double ptR) { fTF1.SetParameter(0, ptR); }

@@ -146,7 +146,7 @@ void investigatePtWeights_wResolutionEffects()
     // {
 
     // 1) get some parametrized effi
-    TF1 &fEffiAtAll_dp_dptG = getMesonEfficiency(lFnameInputEffiFit);
+    TF1 &fMCIntrinsicEffiAtAll_dp_dptG = getMesonEfficiency(lFnameInputEffiFit);
 
     // 2) create resolution parametrizations
     utils_fits::TPairFitsWAxis lPair_vFits_ptG_i_dp_dr_Axis =
@@ -172,7 +172,7 @@ void investigatePtWeights_wResolutionEffects()
 
     // 3 obtain the genDist that was fed to lPtWeights
     // make a copy since we need to fit the histogram which stupidly changes the histogram itself
-    TH1 &hGenDist_AS = *utils_files_strings::CloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
+    TH1 &hGenDist_AS = *utils_utils::CloneTH1(lPtWeights.GetTH1MCGen_dn_dptG());
 
     // 4) fit the genDist
     TF1 &lGenDistTF1_dn_dptG_AS = fitGenDistHisto("auto",
@@ -185,18 +185,18 @@ void investigatePtWeights_wResolutionEffects()
     // 5 create MCEffi instances
     // TAxis &axisPtR = lPtGaxis;
     TAxis lAxisPtR(100, 0., 10.);
-    auto &lMCEffi_AS = *new MCEffi("lMCEffi_AS",                 //
-                                   lGenDistTF1_dn_dptG_AS,       // _fGenDist_dn_dptG
-                                   fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
-                                   lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
-                                   lAxisPtR,                     // _axisPtR
+    auto &lMCEffi_AS = *new MCEffi("lMCEffi_AS",                  //
+                                   lGenDistTF1_dn_dptG_AS,        // _fGenDist_dn_dptG
+                                   fMCIntrinsicEffiAtAll_dp_dptG, // _fEffi_dp_dptG
+                                   lPair_vFits_ptG_i_dp_dr_Axis,  // _vFits_ptG_i_dp_dr_wAxis
+                                   lAxisPtR,                      // _axisPtR
                                    &lPtWeights);
 
     TF1 &fGenData_dn_dptG = lPtWeights.GetTF1TrgtDist_dn_dptG();
-    auto &lMCEffi_D = *new MCEffi("lMCEffi_D",                  //
-                                  fGenData_dn_dptG,             // _fGenDist_dn_dptG
-                                  fEffiAtAll_dp_dptG,           // _fEffi_dp_dptG
-                                  lPair_vFits_ptG_i_dp_dr_Axis, // _vFits_ptG_i_dp_dr_wAxis
+    auto &lMCEffi_D = *new MCEffi("lMCEffi_D",                   //
+                                  fGenData_dn_dptG,              // _fGenDist_dn_dptG
+                                  fMCIntrinsicEffiAtAll_dp_dptG, // _fEffi_dp_dptG
+                                  lPair_vFits_ptG_i_dp_dr_Axis,  // _vFits_ptG_i_dp_dr_wAxis
                                   lAxisPtR);
 
     // 7) plot results

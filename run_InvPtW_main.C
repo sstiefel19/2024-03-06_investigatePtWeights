@@ -48,5 +48,19 @@ void run_InvPtW_main()
     */
     // Initialize && PlotAll
     lInvPtW_main.Main();
-    utils_plotting::SaveCanvasAs(lInvPtW_main.CompareMeasuredEfficiencies());
+    TCanvas &cEffis = lInvPtW_main.CompareMeasuredEfficiencies(
+        *new TLegend(.73, .64, .90, .90, ""),
+        true /*theWithRatio*/);
+    utils_plotting::SaveCanvasAs(cEffis);
+    TCanvas &cGenerated = lInvPtW_main.CompareGeneratedSpectra(
+        *new TLegend(.73, .64, .90, .90, ""));
+    utils_plotting::SaveCanvasAs(cGenerated);
+
+    printf("cGenerated: %p\n", &cGenerated);
+    for (auto const &o : *cGenerated.GetPad(1)->GetListOfPrimitives())
+    {
+        printf("run_InvPtW_main.C::run_InvPtW_main(): cGenerated: %s adress %p\n",
+               o->GetName(),
+               o);
+    }
 }

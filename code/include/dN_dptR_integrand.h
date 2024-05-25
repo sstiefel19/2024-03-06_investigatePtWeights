@@ -21,23 +21,24 @@ public:
 
     ~dN_dptR_integrand();
 
-    TF1 const &GetGenDist_dn_dptG() const { return fGen_dn_dptG; }
-    std::string const &GetID() const { return id; }
+    TF1 const &GetGenDist_dn_dptG_NW() const;
+    TF1 &GetGenDist_dn_dptG_NW_clone() const;
+    std::string const &GetID() const;
 
-    TF1 &GetTF1Reference() { return fTF1; }
-    TF1 const &GetTF1WithLastSetPtR() const { return fTF1; }
-    TF2 const &GetTF2_dN_dptG_dptR() const { return fTF2; }
+    TF1 &GetTF1Reference();
+    TF1 const &GetTF1WithLastSetPtR() const;
+    TF2 const &GetTF2_dN_dptG_dptR() const;
 
-    void SetTF1ParameterPtR(double ptR) { fTF1.SetParameter(0, ptR); }
+    void SetTF1ParameterPtR(double ptR);
 
 private:
     // defining data members
     std::string id;
     std::vector<TObject *> *vAllDrawableObjects;
-    TF1 &fGen_dn_dptG;                     // the distribution of generated particles
-    TF1 &fEffi_dp_dptG;                    // prob that a meson generated with ptG gets reconstructed (no matter with which ptR)
+    TF1 fGen_dn_dptG_NW;                   // the distribution of generated particles
+    TF1 fEffi_dp_dptG;                     // prob that a meson generated with ptG gets reconstructed (no matter with which ptR)
     std::vector<TF1 *> &vFits_ptG_i_dp_dr; // for every bin i in ptG: prob dist that the meson gets smeared with r =  (ptR - ptG) / ptG . Normalized to 1
-    TAxis &axisPtG;                        // the binning in ptG used in vFits_ptG_i_dp_dr
+    TAxis const axisPtG;                   // the binning in ptG used in vFits_ptG_i_dp_dr
     PtWeights *tPtWeights_opt;
 
     // expressive data members

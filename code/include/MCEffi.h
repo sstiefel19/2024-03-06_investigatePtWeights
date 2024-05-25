@@ -42,6 +42,7 @@ public:
     std::string const &GetID() const { return sID; }
     TH1 const &GetMeasuredEffi_NW();
     TH1 const *GetMeasuredEffi_WW();
+    bool CanRunWithPtWeights() const { return tdN_dptR_WW_opt; }
     TH1 &GetMeasuredEffi_NW_clone();
     TH1 *GetMeasuredEffi_WW_clone();
     TObject *GetObservableObject(std::string const &theObservableName);

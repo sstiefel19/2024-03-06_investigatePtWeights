@@ -41,14 +41,14 @@ MCEffi::MCEffi(std::string const &_id,
       vAllDrawableObjects(
           theVAllDrawableObjects ? theVAllDrawableObjects : new std::vector<TObject *>()),
       axisPtR(_axisPtR),
-      tdN_dptR_NW(_id + "_fdN_dptR",
+      tdN_dptR_NW(sID + "_tdN_dptR_NW",
                   _fGenDist_dn_dptG,
                   _fTrueEffiOverall_dp_dptG,
                   _vFits_ptG_i_dp_dr_wAxis,
                   nullptr /*tPtWeights*/,
                   vAllDrawableObjects),
       tdN_dptR_WW_opt(!_tPtWeights ? nullptr
-                                   : new dN_dptR(_id + "_fdN_dptR",
+                                   : new dN_dptR(sID + "_tdN_dptR_WW_opt",
                                                  _fGenDist_dn_dptG,
                                                  _fTrueEffiOverall_dp_dptG,
                                                  _vFits_ptG_i_dp_dr_wAxis,
@@ -100,24 +100,25 @@ TH1 &MCEffi::GetMeasuredEffi_NW_clone()
 {
     if (hMeasuredEffi_NW_2)
     {
-        return *utils_files_strings::CloneTH1(*hMeasuredEffi_NW_2);
+        return *utils_utils::CloneTH1(*hMeasuredEffi_NW_2);
     }
-    return *utils_files_strings::CloneTH1(SampleMeasuredEffi_NW_2());
+    return *utils_utils::CloneTH1(SampleMeasuredEffi_NW_2());
 }
 
 TH1 *MCEffi::GetMeasuredEffi_WW_clone()
 {
     if (hMeasuredEffi_WW_2_opt)
     {
-        return utils_files_strings::CloneTH1(*hMeasuredEffi_WW_2_opt);
+        return utils_utils::CloneTH1(*hMeasuredEffi_WW_2_opt);
     }
     TH1 *h = SampleMeasuredEffi_WW_2();
-    return h ? utils_files_strings::CloneTH1(*h) : nullptr;
+    return h ? utils_utils::CloneTH1(*h) : nullptr;
 }
 
 TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
 {
     {
+        // efficiencies
         if (theObservableName == "MeasuredEffi_NW")
         {
             return &GetMeasuredEffi_NW_clone();
@@ -126,9 +127,20 @@ TObject *MCEffi::GetObservableObject(std::string const &theObservableName)
         {
             return GetMeasuredEffi_WW_clone();
         }
+
+        // generated spectra
+        else if (theObservableName == "fGen_dn_dptG_NW")
+        {
+            return &tdN_dptR_NW.GetIntegrand().GetGenDist_dn_dptG_NW_clone();
+        }
+        else if (theObservableName == "fGen_dn_dptG_WW")
+        {
+            return tdN_dptR_WW_opt ? tdN_dptR_WW_opt->GetGenDist_dn_dptG_WW_opt_clone()
+                                   : nullptr;
+        }
         else
         {
-            printf("InvPtW::CompareObservables_generic():\n\t"
+            printf("MCEffi::GetObservableObject():\n\t"
                    "ERROR: unknown observable: %s\n"
                    "\tReturning dummy TH1.\n",
                    theObservableName.data());
@@ -171,7 +183,7 @@ TH1 &MCEffi::SampleMeasuredEffi_NW_2()
 {
     hMeasuredEffi_NW_2 = &SampleMeasuredEffi_generic_2D(sID + "_hMeasuredEffi_NW_2",
                                                         tdN_dptR_NW.GetTF2_dN_dptG_dptR(),
-                                                        tdN_dptR_NW.GetGenDist_dn_dptG());
+                                                        tdN_dptR_NW.GetGenDist_dn_dptG_NW());
     hMeasuredEffi_NW_2->SetLineColor(kPink);
     hMeasuredEffi_NW_2->SetMarkerColor(kPink);
     vAllDrawableObjects->push_back(hMeasuredEffi_NW_2);
@@ -188,7 +200,7 @@ TH1 *MCEffi::SampleMeasuredEffi_WW_2() /*vAllDrawableObjects->push_back()*/
 
     hMeasuredEffi_WW_2_opt = &SampleMeasuredEffi_generic_2D(sID + "_hMeasuredEffi_WW_2",
                                                             tdN_dptR_WW_opt->GetTF2_dN_dptG_dptR(),
-                                                            tdN_dptR_WW_opt->GetGenDist_dn_dptG());
+                                                            *tdN_dptR_WW_opt->GetGenDist_dn_dptG_WW_opt());
     hMeasuredEffi_WW_2_opt->SetLineColor(kRed);
     hMeasuredEffi_WW_2_opt->SetMarkerColor(kRed);
     vAllDrawableObjects->push_back(hMeasuredEffi_WW_2_opt);
