@@ -22,8 +22,8 @@ dN_dptR::dN_dptR(std::string const &_id,
                  _tPtWeights),
       tPtWeights_opt(_tPtWeights),
       fGen_dn_dptG_WW_opt(tPtWeights_opt ? &utils_TF1::TF1Product(id + "_fGen_dn_dptG_WW_opt",
-                                                                 GetGenDist_dn_dptG_NW_clone(),
-                                                                 tPtWeights_opt->GetTF1())
+                                                                  GetGenDist_dn_dptG_NW_clone(),
+                                                                  tPtWeights_opt->GetTF1())
                                          : nullptr)
 {
     printf("dN_dptR::dN_dptR(): created instance %s %s ptWeights.\n",

@@ -122,3 +122,16 @@ TF2 &dN_dptR_integrand::GetNewTF2_dN_dptG_dptR() const
     vAllDrawableObjects->push_back(&f);
     return f;
 }
+
+TF1 const &dN_dptR_integrand::GetGenDist_dn_dptG_NW() const { return fGen_dn_dptG_NW; }
+    TF1 &dN_dptR_integrand::GetGenDist_dn_dptG_NW_clone() const
+    {
+        return *(TF1 *)fGen_dn_dptG_NW.Clone(Form("%s_clone", fGen_dn_dptG_NW.GetName()));
+    }
+    std::string const &dN_dptR_integrand::GetID() const { return id; }
+
+    TF1 &dN_dptR_integrand::GetTF1Reference() { return fTF1; }
+    TF1 const &dN_dptR_integrand::GetTF1WithLastSetPtR() const { return fTF1; }
+    TF2 const &dN_dptR_integrand::GetTF2_dN_dptG_dptR() const { return fTF2; }
+
+    void dN_dptR_integrand::SetTF1ParameterPtR(double ptR) { fTF1.SetParameter(0, ptR); }

@@ -21,18 +21,15 @@ public:
 
     ~dN_dptR_integrand();
 
-    TF1 const &GetGenDist_dn_dptG_NW() const { return fGen_dn_dptG_NW; }
-    TF1 &GetGenDist_dn_dptG_NW_clone() const
-    {
-        return *(TF1 *)fGen_dn_dptG_NW.Clone(Form("%s_clone", fGen_dn_dptG_NW.GetName()));
-    }
-    std::string const &GetID() const { return id; }
+    TF1 const &GetGenDist_dn_dptG_NW() const;
+    TF1 &GetGenDist_dn_dptG_NW_clone() const;
+    std::string const &GetID() const;
 
-    TF1 &GetTF1Reference() { return fTF1; }
-    TF1 const &GetTF1WithLastSetPtR() const { return fTF1; }
-    TF2 const &GetTF2_dN_dptG_dptR() const { return fTF2; }
+    TF1 &GetTF1Reference();
+    TF1 const &GetTF1WithLastSetPtR() const;
+    TF2 const &GetTF2_dN_dptG_dptR() const;
 
-    void SetTF1ParameterPtR(double ptR) { fTF1.SetParameter(0, ptR); }
+    void SetTF1ParameterPtR(double ptR);
 
 private:
     // defining data members
